@@ -1,0 +1,17 @@
+{
+  "name": "pixel-heart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "point-geometry": "^0.1.0",
+    "raphael": "^2.2.7",
+    "svg.js": "^2.5.2",
+    "underscore": "^1.8.3"
+  }
+}
