@@ -8,8 +8,12 @@ var SCALING_DOWN_FACTOR = 11/13
 
 var options = {
 	total_width: 330,
-	thickness: 3.2
+	thickness: 3.22
 }
+
+// calculated through oberservation of how SVG imports into illustrator and its off by 2.8 
+// each time (2.8x smaller)
+var SCALE_TO_ILLUSTRATOR_FACTOR = 2.834637553	
 
 
 /// Important Calculations
@@ -31,11 +35,43 @@ console.log('NOTCH_SIZE_RELATIVE is '+NOTCH_SIZE_RELATIVE.toFixed(1))
 // first modification is to the right
 var path = [1,-1,1,-1,3,1,3,-1,3,1,1,1,1,3,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-3]	
 
-var makeCoordinatesForBoxes = function() {
+var getObjectSize = function(path) {
+	
+	var minX = path[0].x
+	var minY = path[0].y
+	var maxX = path[0].x
+	var maxY = path[0].y
+
+	_.each(path, function(point) {
+		if ( point.x < minX ) {
+			minX = point.x
+		} else if (point.x > maxX ) {
+			maxX = point.x
+		}
+		if ( point.y < minY ) {
+			minY = point.y
+		} else if (point.y > maxY ) {
+			maxY = point.y
+		}
+	})
+	return {
+		width: maxX - minX,
+		height: maxY - minY
+	}
+}
+
+var NOTCH_SPAN_RELATIVE = 0.2
+var NOTCH_START_RELATIVE = 0.4
+
+var makeCoordinatesForBoxes = function(offset) {
 
 	var boxes = []
-	var xOffset = NOTCH_SIZE_RELATIVE	// ensure shape does not have negative x coord with 1st notch
-	var yOffset = 13+NOTCH_SIZE_RELATIVE*3	// start below the heart with some padding
+	
+	// ensure shape does not have negative x coord with 1st notch
+	var xOffset = NOTCH_SIZE_RELATIVE	
+
+	// Y start below the heart with some padding
+	var yOffset = offset.yOffset ? offset.yOffset: 13+NOTCH_SIZE_RELATIVE*3	
 
 	_.each(path, function(p) {
 
@@ -45,45 +81,47 @@ var makeCoordinatesForBoxes = function() {
 
 		{
 			var a = new Point(0,0)
-			var b = a.add(new Point(0.25*px,0))
+			var b = a.add(new Point(NOTCH_START_RELATIVE*px,0))
 			var c = b.add(new Point(0,-NOTCH_SIZE_RELATIVE))  // outward
-			var d = c.add(new Point(0.5*px,0))
+			var d = c.add(new Point(NOTCH_SPAN_RELATIVE*px,0))
 			var e = d.add(new Point(0,NOTCH_SIZE_RELATIVE))  // inward
 			var f = new Point(px,0)
 			points.push(a,b,c,d,e,f)
 		}
 		{
 			var a = new Point(px,0)
-			var b = a.add(new Point(0,0.25*py))
+			var b = a.add(new Point(0,NOTCH_START_RELATIVE*py))
 			var c = b.add(new Point(-NOTCH_SIZE_RELATIVE,0)) 
-			var d = c.add(new Point(0, 0.5*py))
+			var d = c.add(new Point(0, NOTCH_SPAN_RELATIVE*py))
 			var e = d.add(new Point(NOTCH_SIZE_RELATIVE,0))
 			var f = new Point(px,py)
 			points.push(b,c,d,e,f)	// exclude a
 		}
 		{
 			var a = new Point(px,py)
-			var b = a.add(new Point(-0.25*px,0))
+			var b = a.add(new Point(-NOTCH_START_RELATIVE*px,0))
 			var c = b.add(new Point(0,NOTCH_SIZE_RELATIVE))  
-			var d = c.add(new Point(-0.5*px,0))
+			var d = c.add(new Point(-NOTCH_SPAN_RELATIVE*px,0))
 			var e = d.add(new Point(0,-NOTCH_SIZE_RELATIVE))  
 			var f = new Point(0,py)
 			points.push(b,c,d,e,f)
 		}
 		{
 			var a = new Point(0,py)
-			var b = a.add(new Point(0,-0.25*py))
+			var b = a.add(new Point(0,-NOTCH_START_RELATIVE*py))
 			var c = b.add(new Point(-NOTCH_SIZE_RELATIVE,0)) 
-			var d = c.add(new Point(0, -0.5*py))
+			var d = c.add(new Point(0, -NOTCH_SPAN_RELATIVE*py))
 			var e = d.add(new Point(NOTCH_SIZE_RELATIVE,0))
 			var f = new Point(0,0)
 			points.push(b,c,d,e,f)	// exclude a
 		}
 
+		var size = getObjectSize(points)
 
-		if ( xOffset + p > PIXELS_WIDE ) {
+
+		if ( xOffset + size.width > PIXELS_WIDE ) {
 			xOffset = NOTCH_SIZE_RELATIVE	// reset to left margin
-			yOffset = yOffset + (1+2*NOTCH_SIZE_RELATIVE)
+			yOffset = yOffset + size.height + (1 * NOTCH_SIZE_RELATIVE)
 		}
 
 		var final_points = _.map(points, function(point) {
@@ -97,7 +135,7 @@ var makeCoordinatesForBoxes = function() {
 
 		boxes.push(final_points)
 
-		xOffset += Math.abs(p)
+		xOffset += (size.width + NOTCH_SIZE_RELATIVE )
 
 	});
 
@@ -134,11 +172,11 @@ var makeCoordinatesForHeart = function() {
 
 			if ( moveHorizontal ) {
 
-				var a = previous_point.add(new Point(.25*p,0))
+				var a = previous_point.add(new Point(NOTCH_START_RELATIVE*p,0))
 
 				// the notch begins
 				var b = a.add(new Point(0,NOTCH_SIZE_RELATIVE*counter))
-				var c = b.add(new Point(.5*p,0))
+				var c = b.add(new Point(NOTCH_SPAN_RELATIVE*p,0))
 				var d = c.add(new Point(0,-NOTCH_SIZE_RELATIVE*counter))
 
 				points.push(a,b,c,d)
@@ -147,10 +185,10 @@ var makeCoordinatesForHeart = function() {
 
 				counter *= -1
 
-				var a = previous_point.add(new Point(0,.25*p))
+				var a = previous_point.add(new Point(0,NOTCH_START_RELATIVE*p))
 
 				var b = a.add(new Point(NOTCH_SIZE_RELATIVE*counter,0))
-				var c = b.add(new Point(0,.5*p))
+				var c = b.add(new Point(0,NOTCH_SPAN_RELATIVE*p))
 				var d = c.add(new Point(-NOTCH_SIZE_RELATIVE*counter, 0))
 
 				points.push(a,b,c,d)
@@ -190,7 +228,7 @@ var convertToSvg = function(path) {
 	_.each(path, function(p) {
 		string = string + (first?'M ':' L ')
 		first = false
-		string = string+p.x+' '+p.y
+		string = string+(p.x*SCALE_TO_ILLUSTRATOR_FACTOR)+' '+p.y*SCALE_TO_ILLUSTRATOR_FACTOR
 	})
 
 	return string
@@ -204,10 +242,11 @@ var makeSVGFile = function(paths, doc_width, doc_height) {
 
 	var template = '<?xml version="1.0" standalone="no"?>\n'+
 		'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'+
-		'<svg viewBox = "0 0 '+doc_width+'mm '+doc_height+'mm" version = "1.1">\n\n'
+		'<svg width="'+doc_width+'mm" height="'+doc_height+'mm">\n\n'
 
 	var path_index = 0;
 	_.each(paths, function(path_string) {
+
 		var svg_path_string = '    <path id = "path'+path_index+'" d = "'+path_string+
 			'" fill = "none" stroke = "red" stroke-width = ".01"/>\n'
 		template = template + svg_path_string
@@ -227,7 +266,12 @@ var makeSVGFile = function(paths, doc_width, doc_height) {
 }
 
 var heart = makeCoordinatesForHeart()
-var boxes = makeCoordinatesForBoxes()
+
+console.log('heart size',getObjectSize(heart))
+
+var boxes = makeCoordinatesForBoxes({
+	yOffset: getObjectSize(heart).height/pixel_size + NOTCH_SIZE_RELATIVE*2
+})
 
 // console.log(x)
 var items = []
@@ -241,6 +285,6 @@ var heart_svg = convertToSvg(heart)
 items = items.concat(heart_svg)
 
 
-makeSVGFile(items,options.total_width,options.total_width)
+makeSVGFile(items,options.total_width,options.total_width + 130)
 
 
