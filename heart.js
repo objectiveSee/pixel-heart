@@ -1,23 +1,43 @@
 var makerjs 			= require('makerjs')
-var _ 					= require('underscore')
+
+/**
+	 _______ _________          _______  _       
+	(  ____ )\__   __/|\     /|(  ____ \( \      
+	| (    )|   ) (   ( \   / )| (    \/| (      
+	| (____)|   | |    \ (_) / | (__    | |      
+	|  _____)   | |     ) _ (  |  __)   | |      
+	| (         | |    / ( ) \ | (      | |      
+	| )      ___) (___( /   \ )| (____/\| (____/\
+	|/       \_______/|/     \|(_______/(_______/
+	                                             
+	          _______  _______  _______ _________
+	|\     /|(  ____ \(  ___  )(  ____ )\__   __/
+	| )   ( || (    \/| (   ) || (    )|   ) (   
+	| (___) || (__    | (___) || (____)|   | |   
+	|  ___  ||  __)   |  ___  ||     __)   | |   
+	| (   ) || (      | (   ) || (\ (      | |   
+	| )   ( || (____/\| )   ( || ) \ \__   | |   
+	|/     \|(_______/|/     \||/   \__/   )_(   
+                                           
+*/
 
 // "path" is an array of movements needed to make the heart. It alternates vertical and horizontal
 // movements. Each movement is the amount specified in the array, for example `-3` would be moving
 // 3 units in the negative direction.
-var path = [1,-1,1,-1,3,1,3,-1,3,1,1,1,1,3,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-3]	
+var path = [1,1,1,1,3,-1,3,1,3,-1,1,-1,1,-3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,3]	
 
 function Heart(options) {
 
-	// go clockwise starting from leftmost point (x=0,y=2)
+	// go clockwise starting from leftmost point
 	var points = []
-	var firstPoint = [0,2]
+	var firstPoint = [0,9]
 	points.push(firstPoint)
 
 	var moveHorizontal = true	// alternate horizontal and vertical movements to form pixel heart
 
-	_.each(path, function(p) {
+	path.forEach(function(p) {
 
-		var previous_point = _.last(points)
+		var previous_point = points[points.length-1]
 		var point_to_add;
 
 		if ( moveHorizontal ) {
@@ -34,19 +54,9 @@ function Heart(options) {
 
 
 	var pathModel = new makerjs.models.ConnectTheDots(true, points)
-	console.log(pathModel.paths)
 
-	// NOTE: the heart model is oriented wrong because I used top left as 0,0 origin instead
-	// of bottom right. rotate to fix it.
-	// TODO: rotating will cause slight issues with floating point rounding, so disabling that!
-	// return makerjs.model.mirror(pathModel, false, true)	// mirror y, dont mirror x	
 	return pathModel
 
 }
-
-// Heart.metaParameters = [
-//     { title: "radius", type: "range", min: .01, max: 100, step: 1, value: 10 },
-//     { title: "angle", type: "range", min: 60, max: 120, step: 1, value: 90 }
-// ]
 
 module.exports = Heart
