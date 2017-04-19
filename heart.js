@@ -26,7 +26,7 @@ var makerjs 			= require('makerjs')
 // 3 units in the negative direction.
 var path = [1,1,1,1,3,-1,3,1,3,-1,1,-1,1,-3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,3]	
 
-function Heart(options) {
+function Heart() {
 
 	// go clockwise starting from leftmost point
 	var points = []
