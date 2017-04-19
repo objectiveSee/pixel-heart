@@ -11,22 +11,38 @@ var pathAsString = function(path) {
 
 var POINT_EQUAL_TOLERANCE = 0.001
 
+// todo: pull out the .move() code from box.js and instead make an "extension" on makerjs.layout
+// to have a `layoutModelChildrenInGrid` type function (which can be shared w/ community later)
+// it appears the layout is lost for models when we notch them. perhaps their internal coordinates were reset
+// could debug that as well if you want but more fun to do the extension approachx
+
+var notchModelsInParent = function(parent_model) {
+	var keys = Object.keys(parent_model.models)
+	var newModels = {}
+	keys.forEach(function(k) {
+		var notched_model = notchModel(parent_model.models[k])
+		// console.log(JSON.stringify(notched_model,null,' '))
+		newModels[k] = notched_model
+	})
+	var newmodel = JSON.parse(JSON.stringify(parent_model))	// copy model
+	newmodel.models = newModels
+	return newmodel
+}
 
 /**
- * NOTE: currently there's no logic to add notches as the code to traverse paths is not working.
- * The path lines seem to get flipped sometimes
+ *
+ * @returns {Model} a new model object
  */
 function notchModel(model, thickness) {
 
 	var points = [];
 	var thickness = (typeof thickness != 'undefined') ? thickness : 0.1
 
-	console.log('thickness is '+thickness)
-
 	// internal state variables
 	var first_time = true
 	var i = 0
 	var isEven = true
+	var countPaths = Object.keys(model.paths).length
 
 	// built an array of points by walking through the model path-by-path and 
 	// extracing their end_points.
@@ -44,9 +60,9 @@ function notchModel(model, thickness) {
 			}
 
 			var last_end = points[points.length-1]
-			var origin = walkPathObject.pathContext.origin
-			var end = walkPathObject.pathContext.end
 			var path = walkPathObject.pathContext
+			var origin = path.origin
+			var end = path.end
 
 			// console.log(walkPathObject.pathId+' '+pathAsString(path))
 			// console.log('last end is ', last_end)
@@ -66,7 +82,7 @@ function notchModel(model, thickness) {
 				end = tmp
 			}
 
-			if ( thickness > 0 ) {
+			if ( thickness > 0 ) {	// if 0 there is no notch so dont add unnecessary points
 
 				var angle = makerjs.angle.ofLineInDegrees(path)
 
@@ -113,13 +129,14 @@ function notchModel(model, thickness) {
 		}
 	})
 
-	if ( i < 20 ) {
+	if ( i != countPaths ) {
 		console.log('WARNING::: model.walk() was not synchronous')
 	}
 
 	return new makerjs.models.ConnectTheDots(true, points)
 }
 
+// TODO: move to another module, not relavent here
 var strokeModel = function(model, stroke) {
 
 	// Create expanded model
@@ -156,5 +173,6 @@ if ( 0 ) {
 
 } else {
 	module.exports.notchModel = notchModel
+	module.exports.notchModelsInParent = notchModelsInParent
 	module.exports.strokeModel = strokeModel
 }

@@ -48,9 +48,13 @@ function Box(options) {
 var XSPACING = 0.1
 var YSPACING = 0.1
 
+/**
+ * Internal function, see makeBoxWallsAlongModelPerimeter.
+ */
 var makeBoxesAlongModel = function(model, depth, max_width) {
 
 	var should_wrap = (typeof max_width == 'undefined') ? false : true
+	console.log('wrapping ='+should_wrap)
 
 	// console.log(model)
 
@@ -143,7 +147,14 @@ var arrayToObjectModels = function(modelsArray) {
 	return x
 }
 
-var makeBoxModelsAlongModel = function(model, depth, max_width) {
+/**
+ * Accepts a model and creates the boxes needed to make the sides of a box in which 
+ * the model is the bottom. These boxes would be 90 degrees to the model when this is 
+ * physically assembled.
+ *
+ * @returns {Model} a new model containing the box side wall models.
+ */
+var makeBoxWallsAlongModelPerimeter = function(model, depth, max_width) {
 	var modelsArray = makeBoxesAlongModel(model, depth, max_width)
 	var modelsObject = arrayToObjectModels(modelsArray)
 	var final_model = {
@@ -159,10 +170,10 @@ if ( 0 ) {
 	var modelsArray = makeBoxesAlongModel(pixel_heart, 1.4, 10)	// depth is made up
 	var modelsObject = arrayToObjectModels(modelsArray)
 
-	var final_model = makeBoxModelsAlongModel(pixel_heart, 1.4,10)
+	var final_model = makeBoxWallsAlongModelPerimeter(pixel_heart, 1.4,10)
 	module.exports = final_model
 
 } else {
 	module.exports.Box = Box
-	module.exports.makeBoxModelsAlongModel = makeBoxModelsAlongModel
+	module.exports.makeBoxWallsAlongModelPerimeter = makeBoxWallsAlongModelPerimeter
 }

@@ -20,13 +20,31 @@ var expanded_model = notcher.strokeModel(heart, stroke_around_heart)
 
 var heart_extents = makerjs.measure.modelExtents(expanded_model)
 
-var boxes = Boxes.makeBoxModelsAlongModel(expanded_model, 1.4,10)
+var boxes = Boxes.makeBoxWallsAlongModelPerimeter(expanded_model, 1.4,10)
+// var onebox = boxes.models['model38']
+var notched_boxes = notcher.notchModelsInParent(boxes)
+// console.log(JSON.stringify(notched_boxes,null,' '))
+// console.log(onebox)odel.walk() was not synch
+// var notched_boxes = {}
+
+// console.log(Object.keys(boxes.models))
+
+// todo start here not adding boxes to SVG
+
+// Object.keys(boxes.models).forEach(function(key) {
+// 	var b = boxes[key]
+// 	// console.log(b)
+// 	notched_boxes[key] = notcher.notchModel(b, 0.322)
+// })
+// var final_notched_box_model = {
+// 	model: notched_boxes
+// }
 
 // move boxes above the heart in final SVG
 // ASSUME: y position of the heart is 0
 
-makerjs.model.move(boxes, [0,heart_extents.height+0.1])
-console.log('moving model to '+heart_extents.height+0.1)
+// makerjs.model.move(final_notched_box_model, [0,heart_extents.height+0.1])
+// console.log('moving model to '+heart_extents.height+0.1)
 
 // Name layers
 heart.layer = 'inner'
@@ -44,11 +62,13 @@ var export_options = {
 
 var final_model = {
 	models: {
-		inner: heart,
-		outer: notcher.notchModel(expanded_model),
-		boxes: boxes
+		// inner: heart,
+		// outer: notcher.notchModel(expanded_model),
+		boxes: notched_boxes
 	}
 }
+
+console.log(final_model)
 
 // final_model = expanded_model
 
