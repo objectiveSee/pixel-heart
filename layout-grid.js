@@ -1,10 +1,10 @@
 var makerjs 			= require('makerjs')
 
+function LayoutGrid(parent_model, options) {
 
-var XSPACING = 0.1
-var YSPACING = 0.1
-
-function LayoutGrid(parent_model, max_width) {
+	var max_width = (typeof options.max_width == 'undefined' ? 0.1 : options.max_width)
+	var XSPACING = (typeof options.x_spacing == 'undefined' ? 0.1 : options.x_spacing)
+	var YSPACING = (typeof options.y_spacing == 'undefined' ? 0.1 : options.y_spacing)
 
 	var xpos = 0
 	var ypos = 0
