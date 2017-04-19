@@ -9,29 +9,29 @@ var Boxes				= require('./box.js')
 var LayoutGrid			= require('./layout-grid.js')
 
 var stroke_around_heart = 0.322
+var wood_thickness = 0.1
+var wrap_boxes_after_width = 10
 
 // Create the heart model
-var heart = Heart({
-	thickness: 0.0
-})
+var heart = Heart()
 
-// Create expanded model
+// Create expanded model & notch it
 var expanded_model = notcher.strokeModel(heart, stroke_around_heart)
-// console.log('expanded model: '+JSON.stringify(expanded_model))
+var notched_heart = notcher.notchModel(expanded_model, wood_thickness)
 
-var heart_extents = makerjs.measure.modelExtents(expanded_model)
 
+// Create boxes & notch
 var boxes = Boxes.makeBoxWallsAlongModelPerimeter(expanded_model, 1.4,10)
-// var onebox = boxes.models['model38']
-var notched_boxes = notcher.notchModelsInParent(boxes)
+var notched_boxes = notcher.notchModelsInParent(boxes, wood_thickness)
+LayoutGrid(notched_boxes, wrap_boxes_after_width)	// re-align in a grid
 
-LayoutGrid(notched_boxes, 10)	// re-align in a grid
 
 // move boxes above the heart in final SVG
 // ASSUME: y position of the heart is 0
-
+var heart_extents = makerjs.measure.modelExtents(expanded_model)
 makerjs.model.move(notched_boxes, [0,heart_extents.height+0.1])
 // console.log('moving model to '+heart_extents.height+0.1)
+
 
 // Name layers
 heart.layer = 'inner'
@@ -50,7 +50,7 @@ var export_options = {
 var final_model = {
 	models: {
 		inner: heart,
-		outer: notcher.notchModel(expanded_model),
+		outer: notched_heart,
 		boxes: notched_boxes
 	}
 }

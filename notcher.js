@@ -16,11 +16,11 @@ var POINT_EQUAL_TOLERANCE = 0.001
  *
  * @returns {Model} a new model object
  */
-var notchModelsInParent = function(parent_model) {
+var notchModelsInParent = function(parent_model, thickness) {
 	var keys = Object.keys(parent_model.models)
 	var newModels = {}
 	keys.forEach(function(k) {
-		var notched_model = notchModel(parent_model.models[k])
+		var notched_model = notchModel(parent_model.models[k], thickness)
 		// console.log(JSON.stringify(notched_model,null,' '))
 		newModels[k] = notched_model
 	})
