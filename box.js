@@ -140,7 +140,14 @@ var arrayToObjectModels = function(modelsArray) {
 	return x
 }
 
-
+var makeBoxModelsAlongModel = function(model, depth, max_width) {
+	var modelsArray = makeBoxesAlongModel(model, depth, max_width)
+	var modelsObject = arrayToObjectModels(modelsArray)
+	var final_model = {
+		models: modelsObject
+	}
+	return final_model
+}
 
 if ( 0 ) {
 
@@ -149,11 +156,10 @@ if ( 0 ) {
 	var modelsArray = makeBoxesAlongModel(pixel_heart, 1.4, 10)	// depth is made up
 	var modelsObject = arrayToObjectModels(modelsArray)
 
-	var final_model = {
-		models: modelsObject
-	}
+	var final_model = makeBoxModelsAlongModel(pixel_heart, 1.4,10)
 	module.exports = final_model
 
 } else {
-	module.exports = Box
+	module.exports.Box = Box
+	module.exports.makeBoxModelsAlongModel = makeBoxModelsAlongModel
 }
