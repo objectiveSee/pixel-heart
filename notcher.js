@@ -1,10 +1,6 @@
 var makerjs 			= require('makerjs')
 
 
-// Model of pixel heart created by another script, hard-coded here for use in maker playground
-var pixel_heart = {"paths":{"ShapeLine1":{"type":"line","origin":[0,9],"end":[1,9]},"ShapeLine2":{"type":"line","origin":[1,9],"end":[1,10]},"ShapeLine3":{"type":"line","origin":[1,10],"end":[2,10]},"ShapeLine4":{"type":"line","origin":[2,10],"end":[2,11]},"ShapeLine5":{"type":"line","origin":[2,11],"end":[5,11]},"ShapeLine6":{"type":"line","origin":[5,11],"end":[5,10]},"ShapeLine7":{"type":"line","origin":[5,10],"end":[8,10]},"ShapeLine8":{"type":"line","origin":[8,10],"end":[8,11]},"ShapeLine9":{"type":"line","origin":[8,11],"end":[11,11]},"ShapeLine10":{"type":"line","origin":[11,11],"end":[11,10]},"ShapeLine11":{"type":"line","origin":[11,10],"end":[12,10]},"ShapeLine12":{"type":"line","origin":[12,10],"end":[12,9]},"ShapeLine13":{"type":"line","origin":[12,9],"end":[13,9]},"ShapeLine14":{"type":"line","origin":[13,9],"end":[13,6]},"ShapeLine15":{"type":"line","origin":[13,6],"end":[12,6]},"ShapeLine16":{"type":"line","origin":[12,6],"end":[12,5]},"ShapeLine17":{"type":"line","origin":[12,5],"end":[11,5]},"ShapeLine18":{"type":"line","origin":[11,5],"end":[11,4]},"ShapeLine19":{"type":"line","origin":[11,4],"end":[10,4]},"ShapeLine20":{"type":"line","origin":[10,4],"end":[10,3]},"ShapeLine21":{"type":"line","origin":[10,3],"end":[9,3]},"ShapeLine22":{"type":"line","origin":[9,3],"end":[9,2]},"ShapeLine23":{"type":"line","origin":[9,2],"end":[8,2]},"ShapeLine24":{"type":"line","origin":[8,2],"end":[8,1]},"ShapeLine25":{"type":"line","origin":[8,1],"end":[7,1]},"ShapeLine26":{"type":"line","origin":[7,1],"end":[7,0]},"ShapeLine27":{"type":"line","origin":[7,0],"end":[6,0]},"ShapeLine28":{"type":"line","origin":[6,0],"end":[6,1]},"ShapeLine29":{"type":"line","origin":[6,1],"end":[5,1]},"ShapeLine30":{"type":"line","origin":[5,1],"end":[5,2]},"ShapeLine31":{"type":"line","origin":[5,2],"end":[4,2]},"ShapeLine32":{"type":"line","origin":[4,2],"end":[4,3]},"ShapeLine33":{"type":"line","origin":[4,3],"end":[3,3]},"ShapeLine34":{"type":"line","origin":[3,3],"end":[3,4]},"ShapeLine35":{"type":"line","origin":[3,4],"end":[2,4]},"ShapeLine36":{"type":"line","origin":[2,4],"end":[2,5]},"ShapeLine37":{"type":"line","origin":[2,5],"end":[1,5]},"ShapeLine38":{"type":"line","origin":[1,5],"end":[1,6]},"ShapeLine39":{"type":"line","origin":[1,6],"end":[0,6]},"ShapeLine40":{"type":"line","origin":[0,6],"end":[0,9]}}};
-
-
 // Helper functions
 var pointAsString = function(point) {
 	return '('+point[0].toFixed(2)+','+point[1].toFixed(2)+')'
@@ -15,22 +11,38 @@ var pathAsString = function(path) {
 
 var POINT_EQUAL_TOLERANCE = 0.001
 
+/**
+ * Notches all models stored in the parent model provided
+ *
+ * @returns {Model} a new model object
+ */
+var notchModelsInParent = function(parent_model) {
+	var keys = Object.keys(parent_model.models)
+	var newModels = {}
+	keys.forEach(function(k) {
+		var notched_model = notchModel(parent_model.models[k])
+		// console.log(JSON.stringify(notched_model,null,' '))
+		newModels[k] = notched_model
+	})
+	var newmodel = JSON.parse(JSON.stringify(parent_model))	// copy model
+	newmodel.models = newModels
+	return newmodel
+}
 
 /**
- * NOTE: currently there's no logic to add notches as the code to traverse paths is not working.
- * The path lines seem to get flipped sometimes
+ *
+ * @returns {Model} a new model object
  */
 function notchModel(model, thickness) {
 
 	var points = [];
 	var thickness = (typeof thickness != 'undefined') ? thickness : 0.1
 
-	console.log('thickness is '+thickness)
-
 	// internal state variables
 	var first_time = true
 	var i = 0
 	var isEven = true
+	var countPaths = Object.keys(model.paths).length
 
 	// built an array of points by walking through the model path-by-path and 
 	// extracing their end_points.
@@ -48,9 +60,9 @@ function notchModel(model, thickness) {
 			}
 
 			var last_end = points[points.length-1]
-			var origin = walkPathObject.pathContext.origin
-			var end = walkPathObject.pathContext.end
 			var path = walkPathObject.pathContext
+			var origin = path.origin
+			var end = path.end
 
 			// console.log(walkPathObject.pathId+' '+pathAsString(path))
 			// console.log('last end is ', last_end)
@@ -70,7 +82,7 @@ function notchModel(model, thickness) {
 				end = tmp
 			}
 
-			if ( thickness > 0 ) {
+			if ( thickness > 0 ) {	// if 0 there is no notch so dont add unnecessary points
 
 				var angle = makerjs.angle.ofLineInDegrees(path)
 
@@ -117,13 +129,14 @@ function notchModel(model, thickness) {
 		}
 	})
 
-	if ( i < 20 ) {
+	if ( i != countPaths ) {
 		console.log('WARNING::: model.walk() was not synchronous')
 	}
 
 	return new makerjs.models.ConnectTheDots(true, points)
 }
 
+// TODO: move to another module, not relavent here
 var strokeModel = function(model, stroke) {
 
 	// Create expanded model
@@ -143,6 +156,9 @@ var strokeModel = function(model, stroke) {
 
 
 if ( 0 ) {
+	
+	// Model of pixel heart created by another script, hard-coded here for use in maker playground
+	var pixel_heart = {"paths":{"ShapeLine1":{"type":"line","origin":[0,9],"end":[1,9]},"ShapeLine2":{"type":"line","origin":[1,9],"end":[1,10]},"ShapeLine3":{"type":"line","origin":[1,10],"end":[2,10]},"ShapeLine4":{"type":"line","origin":[2,10],"end":[2,11]},"ShapeLine5":{"type":"line","origin":[2,11],"end":[5,11]},"ShapeLine6":{"type":"line","origin":[5,11],"end":[5,10]},"ShapeLine7":{"type":"line","origin":[5,10],"end":[8,10]},"ShapeLine8":{"type":"line","origin":[8,10],"end":[8,11]},"ShapeLine9":{"type":"line","origin":[8,11],"end":[11,11]},"ShapeLine10":{"type":"line","origin":[11,11],"end":[11,10]},"ShapeLine11":{"type":"line","origin":[11,10],"end":[12,10]},"ShapeLine12":{"type":"line","origin":[12,10],"end":[12,9]},"ShapeLine13":{"type":"line","origin":[12,9],"end":[13,9]},"ShapeLine14":{"type":"line","origin":[13,9],"end":[13,6]},"ShapeLine15":{"type":"line","origin":[13,6],"end":[12,6]},"ShapeLine16":{"type":"line","origin":[12,6],"end":[12,5]},"ShapeLine17":{"type":"line","origin":[12,5],"end":[11,5]},"ShapeLine18":{"type":"line","origin":[11,5],"end":[11,4]},"ShapeLine19":{"type":"line","origin":[11,4],"end":[10,4]},"ShapeLine20":{"type":"line","origin":[10,4],"end":[10,3]},"ShapeLine21":{"type":"line","origin":[10,3],"end":[9,3]},"ShapeLine22":{"type":"line","origin":[9,3],"end":[9,2]},"ShapeLine23":{"type":"line","origin":[9,2],"end":[8,2]},"ShapeLine24":{"type":"line","origin":[8,2],"end":[8,1]},"ShapeLine25":{"type":"line","origin":[8,1],"end":[7,1]},"ShapeLine26":{"type":"line","origin":[7,1],"end":[7,0]},"ShapeLine27":{"type":"line","origin":[7,0],"end":[6,0]},"ShapeLine28":{"type":"line","origin":[6,0],"end":[6,1]},"ShapeLine29":{"type":"line","origin":[6,1],"end":[5,1]},"ShapeLine30":{"type":"line","origin":[5,1],"end":[5,2]},"ShapeLine31":{"type":"line","origin":[5,2],"end":[4,2]},"ShapeLine32":{"type":"line","origin":[4,2],"end":[4,3]},"ShapeLine33":{"type":"line","origin":[4,3],"end":[3,3]},"ShapeLine34":{"type":"line","origin":[3,3],"end":[3,4]},"ShapeLine35":{"type":"line","origin":[3,4],"end":[2,4]},"ShapeLine36":{"type":"line","origin":[2,4],"end":[2,5]},"ShapeLine37":{"type":"line","origin":[2,5],"end":[1,5]},"ShapeLine38":{"type":"line","origin":[1,5],"end":[1,6]},"ShapeLine39":{"type":"line","origin":[1,6],"end":[0,6]},"ShapeLine40":{"type":"line","origin":[0,6],"end":[0,9]}}};
 
 	var expanded_model = strokeModel(pixel_heart, 0.322)
 
@@ -157,5 +173,6 @@ if ( 0 ) {
 
 } else {
 	module.exports.notchModel = notchModel
+	module.exports.notchModelsInParent = notchModelsInParent
 	module.exports.strokeModel = strokeModel
 }
