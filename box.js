@@ -2,6 +2,9 @@ var makerjs 			= require('makerjs')
 
 function Box(options) {
 
+	// NOTE can also use http://microsoft.github.io/maker.js/docs/api/classes/makerjs.models.rectangle.html
+	// to simplify code if you so desire
+
     // "path" is an array of movements needed to make the box. It alternates vertical and horizontal
     // movements. Each movement is the amount specified in the array, for example `-3` would be moving
     // 3 units in the negative direction.
