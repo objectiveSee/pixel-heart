@@ -13,21 +13,13 @@ var heart = Heart({
 	thickness: 0.0
 })
 
-var NUM_JOINTS = 1
-
 // Create expanded model
-var expanded_model = makerjs.model.outline(heart, stroke_around_heart, NUM_JOINTS)
-//call originate before calling simplify:
-makerjs.model.originate(expanded_model);
-makerjs.model.simplify(expanded_model);	// simplify paths that should be a single path after outline()
-
-expanded_model = expanded_model.models['0']	// grab the model, not this wrapper around it
-
+var expanded_model = notcher.strokeModel(heart, stroke_around_heart)
+// console.log('expanded model: '+JSON.stringify(expanded_model))
 
 // Name layers
 heart.layer = 'inner'
 expanded_model.layer = 'outer'
-// console.log('model is '+JSON.stringify(expanded_model.models,null,'\t'));
 
 
 // Export final model
@@ -41,7 +33,7 @@ var export_options = {
 var final_model = {
 	models: {
 		inner: heart,
-		// outer: notcher.notchModel(expanded_model)
+		outer: notcher.notchModel(expanded_model)
 	}
 }
 
