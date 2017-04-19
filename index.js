@@ -8,7 +8,7 @@ var notcher 			= require('./notcher.js')
 var Boxes				= require('./box.js')
 var LayoutGrid			= require('./layout-grid.js')
 
-var stroke_around_heart = 0.322
+var stroke_around_heart = 0.2
 var wood_thickness = 0.1
 var wrap_boxes_after_width = 10
 
@@ -21,7 +21,7 @@ var notched_heart = notcher.notchModel(expanded_model, wood_thickness)
 
 
 // Create boxes & notch
-var boxes = Boxes.makeBoxWallsAlongModelPerimeter(expanded_model, 1.4,10)
+var boxes = Boxes.makeBoxWallsAlongModelPerimeter(expanded_model, 1.4,wood_thickness)
 
 var notch_pattern = [1,1,-1,-1] // starts at 0,0 and goes counter clockwise
 var notched_boxes = notcher.notchModelsInParent(boxes, wood_thickness, notch_pattern)

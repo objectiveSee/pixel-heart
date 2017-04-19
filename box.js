@@ -1,5 +1,8 @@
 var makerjs 			= require('makerjs')
 
+/** 
+ * Module for making 3D boxes out of cut pieces of 2D material, such as wood.
+ */
 function Box(options) {
 
 	// NOTE can also use http://microsoft.github.io/maker.js/docs/api/classes/makerjs.models.rectangle.html
@@ -51,7 +54,9 @@ function Box(options) {
  * 
  * @returns {Array} array of new models
  */
-var makeBoxesAlongModel = function(model, depth) {
+var makeBoxesAlongModel = function(model, depth, thickness) {
+
+	thickness = (typeof thickness == 'undefined' ) ? 0.0 : thickness
 
 	// var should_wrap = (typeof max_width == 'undefined') ? false : true
 	// console.log('wrapping ='+should_wrap)
@@ -80,8 +85,12 @@ var makeBoxesAlongModel = function(model, depth) {
 			}
 			length = Math.abs(length)	// we only care about real distance for box dimensions
 
+			// subtract off the thickness to account for the notch size and how that effects
+			// the final width. 
+			// ASSUME: Each box wall has one male notch and one female notch
+
 			var options = {
-				width: length,
+				width: length - thickness,
 				height: depth
 			}
 
@@ -115,8 +124,8 @@ var arrayToObjectModels = function(modelsArray) {
  *
  * @returns {Model} a new model containing the box side wall models.
  */
-var makeBoxWallsAlongModelPerimeter = function(model, depth) {
-	var modelsArray = makeBoxesAlongModel(model, depth)
+var makeBoxWallsAlongModelPerimeter = function(model, depth, thickness) {
+	var modelsArray = makeBoxesAlongModel(model, depth, thickness)
 	var modelsObject = arrayToObjectModels(modelsArray)
 	var final_model = {
 		models: modelsObject
@@ -131,7 +140,7 @@ if ( 0 ) {
 	var modelsArray = makeBoxesAlongModel(pixel_heart, 1.4, 10)	// depth is made up
 	var modelsObject = arrayToObjectModels(modelsArray)
 
-	var final_model = makeBoxWallsAlongModelPerimeter(pixel_heart, 1.4,10)
+	var final_model = makeBoxWallsAlongModelPerimeter(pixel_heart, 1.4, 0.1)
 	module.exports = final_model
 
 } else {
