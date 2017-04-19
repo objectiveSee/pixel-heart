@@ -22,7 +22,9 @@ var notched_heart = notcher.notchModel(expanded_model, wood_thickness)
 
 // Create boxes & notch
 var boxes = Boxes.makeBoxWallsAlongModelPerimeter(expanded_model, 1.4,10)
-var notched_boxes = notcher.notchModelsInParent(boxes, wood_thickness)
+
+var notch_pattern = [1,1,-1,-1] // starts at 0,0 and goes counter clockwise
+var notched_boxes = notcher.notchModelsInParent(boxes, wood_thickness, notch_pattern)
 LayoutGrid(notched_boxes, wrap_boxes_after_width)	// re-align in a grid
 
 
@@ -30,7 +32,6 @@ LayoutGrid(notched_boxes, wrap_boxes_after_width)	// re-align in a grid
 // ASSUME: y position of the heart is 0
 var heart_extents = makerjs.measure.modelExtents(expanded_model)
 makerjs.model.move(notched_boxes, [0,heart_extents.height+0.1])
-// console.log('moving model to '+heart_extents.height+0.1)
 
 
 // Name layers
@@ -55,12 +56,7 @@ var final_model = {
 	}
 }
 
-console.log(final_model)
-
-// final_model = expanded_model
-
 var svg = makerjs.exporter.toSVG(final_model,export_options);
-// console.log(svg)
 
 fs.writeFile("out.svg", svg, function(err) {
     if(err) {

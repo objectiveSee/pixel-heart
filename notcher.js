@@ -16,11 +16,11 @@ var POINT_EQUAL_TOLERANCE = 0.001
  *
  * @returns {Model} a new model object
  */
-var notchModelsInParent = function(parent_model, thickness) {
+var notchModelsInParent = function(parent_model, thickness, pattern) {
 	var keys = Object.keys(parent_model.models)
 	var newModels = {}
 	keys.forEach(function(k) {
-		var notched_model = notchModel(parent_model.models[k], thickness)
+		var notched_model = notchModel(parent_model.models[k], thickness, pattern)
 		// console.log(JSON.stringify(notched_model,null,' '))
 		newModels[k] = notched_model
 	})
@@ -30,13 +30,26 @@ var notchModelsInParent = function(parent_model, thickness) {
 }
 
 /**
- *
+ * 1 means outward, -1 means inward
+ */
+function notchDirection(i, pattern) {
+	var result = i % pattern.length
+	// console.log(i,result,pattern[result])
+	return pattern[result]
+}
+
+/**
+ * TODO: `pattern` logic should evolve to specify the direction of traversal of chain and 
+ * the starting point of the traversal for applying direction to. right now you have to know
+ * where your model starts and which direction to go when defining the model.
+ * 
  * @returns {Model} a new model object
  */
-function notchModel(model, thickness) {
+function notchModel(model, thickness, pattern) {
 
 	var points = [];
-	var thickness = (typeof thickness != 'undefined') ? thickness : 0.1
+	thickness = (typeof thickness != 'undefined') ? thickness : 0.1
+	pattern = (typeof pattern != 'undefined') ? pattern : [-1]	// default pattern is always "in"
 
 	// internal state variables
 	var first_time = true
@@ -114,7 +127,13 @@ function notchModel(model, thickness) {
 				var line = new makerjs.paths.Line(aa, bb)
 				// make test line because there is no `isPointInsideModel` function
 				// modify aa/bb if we want to go outside not inside or vice versus
-				if ( ! makerjs.model.isPathInsideModel(line, model) ) {
+				var line_is_inside_model = makerjs.model.isPathInsideModel(line, model)
+				var direction_of_notch = notchDirection(i, pattern)
+				
+				// swap to an outward notch if specified by pattern
+				if (( line_is_inside_model &&  direction_of_notch == 1 ) ||
+				    ( !line_is_inside_model &&  direction_of_notch == -1)) {
+
 					notch_point = isHorizontal ? [0,-thickness] : [-thickness,0]
 					aa = makerjs.point.add(a, notch_point)
 					bb = makerjs.point.add(b, notch_point)

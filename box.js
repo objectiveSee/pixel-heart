@@ -8,6 +8,7 @@ function Box(options) {
     // "path" is an array of movements needed to make the box. It alternates vertical and horizontal
     // movements. Each movement is the amount specified in the array, for example `-3` would be moving
     // 3 units in the negative direction.
+    // moves in counter clockwise direction from 0,0
 	var path = [1*options.width,1*options.height,
                 -1*options.width,-1*options.height]
     if ( ! options.width || !options.height ) {
