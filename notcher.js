@@ -11,11 +11,11 @@ var pathAsString = function(path) {
 
 var POINT_EQUAL_TOLERANCE = 0.001
 
-// todo: pull out the .move() code from box.js and instead make an "extension" on makerjs.layout
-// to have a `layoutModelChildrenInGrid` type function (which can be shared w/ community later)
-// it appears the layout is lost for models when we notch them. perhaps their internal coordinates were reset
-// could debug that as well if you want but more fun to do the extension approachx
-
+/**
+ * Notches all models stored in the parent model provided
+ *
+ * @returns {Model} a new model object
+ */
 var notchModelsInParent = function(parent_model) {
 	var keys = Object.keys(parent_model.models)
 	var newModels = {}

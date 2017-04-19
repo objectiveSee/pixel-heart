@@ -45,33 +45,26 @@ function Box(options) {
 
 }
 
-var XSPACING = 0.1
-var YSPACING = 0.1
-
 /**
  * Internal function, see makeBoxWallsAlongModelPerimeter.
+ * 
+ * @returns {Array} array of new models
  */
-var makeBoxesAlongModel = function(model, depth, max_width) {
+var makeBoxesAlongModel = function(model, depth) {
 
-	var should_wrap = (typeof max_width == 'undefined') ? false : true
-	console.log('wrapping ='+should_wrap)
-
+	// var should_wrap = (typeof max_width == 'undefined') ? false : true
+	// console.log('wrapping ='+should_wrap)
 	// console.log(model)
 
 	var chain = makerjs.model.findSingleChain(model)
 	//console.log(chain)
 	
 	var points = makerjs.chain.toKeyPoints(chain)
-
 	//console.log(points)
 
 	var models = []
 	var is_first = true
 	var previous_point
-
-	var xpos = 0
-	var ypos = 0
-	var maxheight = 0
 
 	points.forEach(function(point) {
 
@@ -90,36 +83,8 @@ var makeBoxesAlongModel = function(model, depth, max_width) {
 				width: length,
 				height: depth
 			}
-			// console.log(JSON.stringify(options))
+
 			var box = Box(options)
-
-			// move each so they can be viewed and not overlap
-			// optionally wrap to another "line"
-			if ( should_wrap ) {
-
-				var extents = makerjs.measure.modelExtents(box)
-				var model_width = extents.width
-
-				if ( extents.height > maxheight ) {	// track height model in current horizontal line
-					maxheight = extents.height
-				}
-
-				// console.log(model_width, max_width, xpos)
-
-				if ( xpos + model_width > max_width ) {
-					// wrap line by increasing y and resetting xpost and maxheight
-					xpos = 0
-					ypos += maxheight + YSPACING
-					maxheight = 0
-				}
-
-				makerjs.model.move(box, [xpos,ypos])
-			} else {
-				makerjs.model.move(box, [xpos,ypos])
-			}
-
-			xpos += length + XSPACING
-
 			models.push(box)
 
 		}
@@ -131,10 +96,6 @@ var makeBoxesAlongModel = function(model, depth, max_width) {
 
 }
 
-var arrangeInGrid = function(models) {
-	// TODO: write me and use where .move() is called in this module
-}
-
 var arrayToObjectModels = function(modelsArray) {
 	var x = {}
 	var i = 0
@@ -143,7 +104,6 @@ var arrayToObjectModels = function(modelsArray) {
 		x['model'+i] = m
 		i++
 	})
-    // console.log(x)
 	return x
 }
 
@@ -154,8 +114,8 @@ var arrayToObjectModels = function(modelsArray) {
  *
  * @returns {Model} a new model containing the box side wall models.
  */
-var makeBoxWallsAlongModelPerimeter = function(model, depth, max_width) {
-	var modelsArray = makeBoxesAlongModel(model, depth, max_width)
+var makeBoxWallsAlongModelPerimeter = function(model, depth) {
+	var modelsArray = makeBoxesAlongModel(model, depth)
 	var modelsObject = arrayToObjectModels(modelsArray)
 	var final_model = {
 		models: modelsObject
