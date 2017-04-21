@@ -13,6 +13,7 @@ var wood_thickness = 3.22 // in mm
 var stroke_around_heart = wood_thickness * 2 // can be changed if you want
 var wrap_boxes_after_width = inner_heart_width + stroke_around_heart*2
 var box_layout_spacing = wood_thickness/2
+var notch_width = 3.22
 
 // Create the heart model
 var heart = Heart()
@@ -21,7 +22,7 @@ makerjs.model.scale(heart, inner_heart_width/13)
 
 // Create expanded model & notch it
 var expanded_model = notcher.strokeModel(heart, stroke_around_heart)
-var notched_heart = notcher.notchModel(expanded_model, wood_thickness)
+var notched_heart = notcher.notchModel(expanded_model, wood_thickness, [-1], notch_width)
 
 
 // Create boxes & notch
@@ -29,7 +30,7 @@ var boxDepth = 18
 var boxes = Boxes.makeBoxWallsAlongModelPerimeter(expanded_model, boxDepth, wood_thickness)
 
 var notch_pattern = [1,1,-1,-1] // starts at 0,0 and goes counter clockwise
-var notched_boxes = notcher.notchModelsInParent(boxes, wood_thickness, notch_pattern)
+var notched_boxes = notcher.notchModelsInParent(boxes, wood_thickness, notch_pattern, notch_width)
 LayoutGrid(notched_boxes, {
 	x_spacing: box_layout_spacing,
 	y_spacing: box_layout_spacing,

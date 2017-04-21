@@ -16,11 +16,11 @@ var POINT_EQUAL_TOLERANCE = 0.001
  *
  * @returns {Model} a new model object
  */
-var notchModelsInParent = function(parent_model, thickness, pattern) {
+var notchModelsInParent = function(parent_model, thickness, pattern, notch_width) {
 	var keys = Object.keys(parent_model.models)
 	var newModels = {}
 	keys.forEach(function(k) {
-		var notched_model = notchModel(parent_model.models[k], thickness, pattern)
+		var notched_model = notchModel(parent_model.models[k], thickness, pattern, notch_width)
 		// console.log(JSON.stringify(notched_model,null,' '))
 		newModels[k] = notched_model
 	})
@@ -45,11 +45,15 @@ function notchDirection(i, pattern) {
  * 
  * @returns {Model} a new model object
  */
-function notchModel(model, thickness, pattern) {
+function notchModel(model, thickness, pattern, notch_width) {
 
-	var points = [];
+	var points = []
 	thickness = (typeof thickness != 'undefined') ? thickness : 0.1
 	pattern = (typeof pattern != 'undefined') ? pattern : [-1]	// default pattern is always "in"
+
+	if (typeof notch_width == 'undefined') {
+		throw new Error('notch width must be specified.')
+	}
 
 	// internal state variables
 	var first_time = true
@@ -61,10 +65,10 @@ function notchModel(model, thickness, pattern) {
 	// extracing their end_points.
 	// ASSUME: the `origin` of each path is equal to the `end` of the previously traversed path
 
-
 	makerjs.model.walk(model, {
 
 		onPath: function(walkPathObject) {
+
 			// console.log('----')
 			if ( first_time ) {
 				// add first origin only
@@ -77,16 +81,13 @@ function notchModel(model, thickness, pattern) {
 			var origin = path.origin
 			var end = path.end
 
-			// console.log(walkPathObject.pathId+' '+pathAsString(path))
-			// console.log('last end is ', last_end)
-
 			
 			// check to ensure that path.origin is equal to the `end` point of the previous path
 			// if not, try flipping origin and end to see if that fixes it (as observed that 
 			// sometimes the points are flipped)
 
 			if ( ! makerjs.measure.isPointEqual(last_end, origin, POINT_EQUAL_TOLERANCE) ) {
-				// console.log(':: warning :: path is broken.'+pointAsString(last_end)+' should equal '+pointAsString(origin))
+				console.log(':: warning :: path is broken.'+pointAsString(last_end)+' should equal '+pointAsString(origin))
 				if ( ! makerjs.measure.isPointEqual(last_end, end, POINT_EQUAL_TOLERANCE) ) {
 					console.log(':: error :: path is still broken after flipping origin and end')
 				}
@@ -111,9 +112,11 @@ function notchModel(model, thickness, pattern) {
 
 				// find start of notch
 				var difference_point = makerjs.point.subtract(end, origin)
-				// console.log(difference_point)
-				var mod_a = makerjs.point.scale(difference_point, 0.4)
-				var mod_b = makerjs.point.scale(difference_point, 0.6)
+
+				var notch_width_as_percent = notch_width / length
+
+				var mod_a = makerjs.point.scale(difference_point, 0.5 - notch_width_as_percent/2)
+				var mod_b = makerjs.point.scale(difference_point, 0.5 + notch_width_as_percent/2)
 
 				var a = makerjs.point.add(origin, mod_a)
 				var b = makerjs.point.add(origin, mod_b)
