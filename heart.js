@@ -21,21 +21,28 @@ var makerjs 			= require('makerjs')
                                            
 */
 
-// "path" is an array of movements needed to make the heart. It alternates vertical and horizontal
+// "path" is an array of movements needed to make the heart. It alternates horizontal and vertical
 // movements. Each movement is the amount specified in the array, for example `-3` would be moving
-// 3 units in the negative direction.
+// 3 units in the negative direction. The starting point of the heart is the leftmost edge at the
+// top of the vertical 3 side (see `STARTING_POINT`).
 var path = [1,1,1,1,3,-1,3,1,3,-1,1,-1,1,-3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,3]	
 
-function Heart() {
+var HEART_WIDTH = 13	// corresponds to the width of the model when built from `path` above
+var STARTING_POINT = [0,9]	// starting point so the heart is located properly in space
 
-	// go clockwise starting from leftmost point
+/**
+ * Builds an array of points that define a model by generating points 
+ * from the `path` defined above.
+ */
+function PixelWalker(firstPoint, pixel_path) {
+
+	// go clockwise starting first point
 	var points = []
-	var firstPoint = [0,9]
 	points.push(firstPoint)
 
 	var moveHorizontal = true	// alternate horizontal and vertical movements to form pixel heart
 
-	path.forEach(function(p) {
+	pixel_path.forEach(function(p) {
 
 		var previous_point = points[points.length-1]
 		var point_to_add;
@@ -52,11 +59,29 @@ function Heart() {
 		moveHorizontal = !moveHorizontal
 	})
 
-
-	var pathModel = new makerjs.models.ConnectTheDots(true, points)
-
-	return pathModel
-
+	return points
 }
+
+/** 
+ * Builds a pixel heart model and scale it to the specified input width.
+ */
+function Heart(desired_width) {
+  
+  	var scale = desired_width/HEART_WIDTH
+	var points = PixelWalker(STARTING_POINT,path)
+	var pathModel = new makerjs.models.ConnectTheDots(true, points)
+	if ( typeof scale != 'undefined' ) {
+		makerjs.model.scale(pathModel, scale)
+	}
+	return pathModel
+}
+
+/**
+ * Define input properties for when this module is used within the maker.js playground.
+ * See http://microsoft.github.io/maker.js/playground
+ */
+Heart.metaParameters = [
+    { title: "Width", type: "range", min: 1, max: 130, value: 13 }
+]
 
 module.exports = Heart
