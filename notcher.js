@@ -216,39 +216,39 @@ var adjustmentPoint = function(previous, current, next, isHorizontal, stroke) {
 // TODO: move to another module, not relavent here
 var strokeModel = function(model, stroke) {
 
-		var chain = makerjs.model.findSingleChain(model)
-		var points = makerjs.chain.toKeyPoints(chain)	
-        var new_points = []
-        var length = points.length
-		if ( length % 2 != 0 ) {
-          throw new Error('invalid chain length')
-        }
-        var i = 0
-        isHorizontal = false
-        points.forEach(function(this_point) {
- 
-        	var previous_index = (i-1).mod(points.length)
-        	var previous_point = points[previous_index]
-        	var next_index = (i+1).mod(points.length)
-        	var next_point = points[next_index]
+	var chain = makerjs.model.findSingleChain(model)
+	var points = makerjs.chain.toKeyPoints(chain)	
+    var new_points = []
+    var length = points.length
+	if ( length % 2 != 0 ) {
+      throw new Error('invalid chain length')
+    }
+    var i = 0
+    isHorizontal = false
+    points.forEach(function(this_point) {
 
-    		var adjustment_point = adjustmentPoint(previous_point, 
-                                                   this_point, 
-                                                   next_point, 
-                                                   isHorizontal, 
-                                                   stroke)
+    	var previous_index = (i-1).mod(points.length)
+    	var previous_point = points[previous_index]
+    	var next_index = (i+1).mod(points.length)
+    	var next_point = points[next_index]
 
-    		var new_end = makerjs.point.add(this_point, adjustment_point)
-            // console.log('new point is '+new_end)    		
+		var adjustment_point = adjustmentPoint(previous_point, 
+                                               this_point, 
+                                               next_point, 
+                                               isHorizontal, 
+                                               stroke)
 
-    		new_points.push(new_end)
+		var new_end = makerjs.point.add(this_point, adjustment_point)
+        // console.log('new point is '+new_end)    		
 
-            isHorizontal = !isHorizontal
-        	i++
-        })
-        
-     	var c = new makerjs.models.ConnectTheDots(true,new_points)
-     	return c
+		new_points.push(new_end)
+
+        isHorizontal = !isHorizontal
+    	i++
+    })
+    
+ 	var c = new makerjs.models.ConnectTheDots(true,new_points)
+ 	return c
 }
 
 
