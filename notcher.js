@@ -49,12 +49,16 @@ function notchDirection(i, pattern) {
 function notchModel(model, options) {
 
 	var points = []
+	var boxes = []
     var offset_notches_by_thickness = true
 	var thickness = (typeof options.thickness != 'undefined') ? options.thickness : 0.1
 	var is_walls = (typeof options.is_walls != 'undefined') ? options.is_walls : false
-	var pattern = (typeof options.pattern != 'undefined') ? options.pattern : [-1]	// default pattern is always "in"
 	var notch_width = options.notch_width
-
+	var notches_are_boxes = (typeof options.notches_are_boxes != 'undefined') ? 
+							options.notches_are_boxes : false
+	// default pattern is always "in"
+	var pattern = (typeof options.pattern != 'undefined') ? options.pattern : [-1]	
+	
 	if (typeof notch_width == 'undefined') {
 		throw new Error('notch_width must be specified.')
 	}
@@ -83,6 +87,7 @@ function notchModel(model, options) {
 			var path = walkPathObject.pathContext
 			var origin = path.origin
 			var end = path.end
+
 
 			
 			// check to ensure that path.origin is equal to the `end` point of the previous path
@@ -156,7 +161,11 @@ function notchModel(model, options) {
 					bb = makerjs.point.add(b, notch_point)
 				}
 
-				points.push(a,aa,bb,b)
+				if ( notches_are_boxes ) {
+					var box = new makerjs.models.ConnectTheDots(true, [a,aa,bb,b])
+					boxes.push(box)
+				}
+				points.push(a,aa,bb,b) //  not needed if `notches_are_boxes` is true
 			}
 
 			isEven = !isEven
@@ -169,7 +178,15 @@ function notchModel(model, options) {
 		console.log('WARNING::: model.walk() was not synchronous')
 	}
 
-	return new makerjs.models.ConnectTheDots(true, points)
+	// if `notches_are_boxes` then the desire result is an array of models which are boxes
+	// as we cannot export just a single model
+	if ( notches_are_boxes ) {
+		return {
+			models: boxes
+		}
+	} else {
+		return new makerjs.models.ConnectTheDots(true, points)		
+	}
 }
 
 
@@ -278,7 +295,8 @@ if ( 0 ) {
 			inner: pixel_heart,
 			outer: notchModel(expanded_model, {
 				thickness: 0.1,
-				notch_width: 0.2
+				notch_width: 0.2,
+				notches_are_boxes: true
 			})
 			//expanded_model: expanded_model
 		}

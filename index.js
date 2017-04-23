@@ -25,18 +25,22 @@ var notch_width = wood_thickness
 // Create the heart model & scale to desired size
 var heart = Heart(inner_heart_width)
 
-// Create expanded model & notch it
+// Create expanded model & notch it with boxes only
 var heart_notch_options = {
 	thickness: wood_thickness,
 	pattern: [-1],
 	notch_width: notch_width
 }
-var expanded_model = notcher.strokeModel(heart, inner_stroke_around_heart)
-var notched_heart = notcher.notchModel(expanded_model, heart_notch_options)
 
 // Create 2nd expanded model & notch it
+heart_notch_options.notches_are_boxes = false
 var expanded_model2 = notcher.strokeModel(heart, outer_stroke_around_heart)
-var notched_heart2 = notcher.notchModel(expanded_model2, heart_notch_options)
+var notched_heart_outer = notcher.notchModel(expanded_model2, heart_notch_options)
+
+// Create 1st expanded model & notch it
+heart_notch_options.notches_are_boxes = true
+var expanded_model = notcher.strokeModel(heart, inner_stroke_around_heart)
+var notched_heart_inner = notcher.notchModel(expanded_model, heart_notch_options)
 
 
 // Create boxes & notch
@@ -80,20 +84,21 @@ var export_options = {
 var final_model = {
 	models: {
 		//heart: heart,
-		//notched_heart: notched_heart,
-		notched_boxes: notched_boxes,
-		notched_heart2: notched_heart2
+		notched_heart_inner: notched_heart_inner,
+		notched_heart_outer: notched_heart_outer,
+		inner_heart_blue_path: expanded_model,
+		notched_boxes: notched_boxes
 	}
 }
 
 var svg = makerjs.exporter.toSVG(final_model,export_options);
 
-var file = "<!DOCTYPE html>"+
-"<html>"+
-"<body>"+
+var file = "<!DOCTYPE html>\n"+
+"<html>\n"+
+"<body>\n\n"+
 svg+
-"</body>"+
-"</html>"
+"\n\n</body>\n"+
+"</html>\n"
 
 var output_as_svg = true
 var filename, output
