@@ -22,17 +22,21 @@ var box_layout_spacing = wood_thickness/2
 var notch_width = wood_thickness
 
 
-
 // Create the heart model & scale to desired size
 var heart = Heart(inner_heart_width)
 
 // Create expanded model & notch it
+var heart_notch_options = {
+	thickness: wood_thickness,
+	pattern: [-1],
+	notch_width: notch_width
+}
 var expanded_model = notcher.strokeModel(heart, inner_stroke_around_heart)
-var notched_heart = notcher.notchModel(expanded_model, wood_thickness, [-1], notch_width)
+var notched_heart = notcher.notchModel(expanded_model, heart_notch_options)
 
 // Create 2nd expanded model & notch it
 var expanded_model2 = notcher.strokeModel(heart, outer_stroke_around_heart)
-var notched_heart2 = notcher.notchModel(expanded_model2, wood_thickness, [-1], notch_width)
+var notched_heart2 = notcher.notchModel(expanded_model2, heart_notch_options)
 
 
 // Create boxes & notch
@@ -40,7 +44,12 @@ var boxDepth = 18
 var boxes = Boxes.makeBoxWallsAlongModelPerimeter(expanded_model2, boxDepth, wood_thickness)
 
 var notch_pattern = [1,1,-1,-1] // starts at 0,0 and goes counter clockwise
-var notched_boxes = notcher.notchModelsInParent(boxes, wood_thickness, notch_pattern, notch_width)
+var notched_boxes = notcher.notchModelsInParent(boxes, {
+	thickness: wood_thickness,
+	pattern: notch_pattern,
+	notch_width: notch_width,
+	is_walls: true
+})
 LayoutGrid(notched_boxes, {
 	x_spacing: box_layout_spacing,
 	y_spacing: box_layout_spacing,
@@ -62,7 +71,7 @@ notched_boxes.layer = 'boxes'
 
 // Export final model
 var export_options = {
-	strokeWidth: 0.4,
+	strokeWidth: 3,
 	units: 'mm',
 	stroke: 'red',
 	useSvgPathOnly: true
@@ -70,8 +79,8 @@ var export_options = {
 
 var final_model = {
 	models: {
-		heart: heart,
-		notched_heart: notched_heart,
+		//heart: heart,
+		//notched_heart: notched_heart,
 		notched_boxes: notched_boxes,
 		notched_heart2: notched_heart2
 	}
@@ -79,11 +88,29 @@ var final_model = {
 
 var svg = makerjs.exporter.toSVG(final_model,export_options);
 
-fs.writeFile("out.svg", svg, function(err) {
+var file = "<!DOCTYPE html>"+
+"<html>"+
+"<body>"+
+svg+
+"</body>"+
+"</html>"
+
+var output_as_svg = true
+var filename, output
+
+if ( output_as_svg ) {
+	filename = 'out.svg'
+	output = svg
+} else {
+	filename = 'out.html'
+	output = file
+}
+
+fs.writeFile(filename, output, function(err) {
     if(err) {
         return console.log(err);
     }
 
-    console.log("The file was saved!");
+    console.log('The file '+filename+' was saved!');
 
 });
