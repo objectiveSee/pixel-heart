@@ -67,10 +67,10 @@ function PixelWalker(firstPoint, pixel_path) {
  */
 function Heart(desired_width) {
   
-  	var scale = desired_width/HEART_WIDTH
 	var points = PixelWalker(STARTING_POINT,path)
 	var pathModel = new makerjs.models.ConnectTheDots(true, points)
-	if ( typeof scale != 'undefined' ) {
+	if ( typeof desired_width != 'undefined' ) {
+	  	var scale = desired_width/HEART_WIDTH
 		makerjs.model.scale(pathModel, scale)
 	}
 	return pathModel

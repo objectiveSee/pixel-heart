@@ -50,8 +50,7 @@ function notchModel(model, options) {
 
 	var points = []
 	var boxes = []
-    var offset_notches_by_thickness = true
-	var thickness = (typeof options.thickness != 'undefined') ? options.thickness : 0.1
+    var thickness = (typeof options.thickness != 'undefined') ? options.thickness : 0.1
 	var is_walls = (typeof options.is_walls != 'undefined') ? options.is_walls : false
 	var notch_width = options.notch_width
 	var notches_are_boxes = (typeof options.notches_are_boxes != 'undefined') ? 
@@ -120,12 +119,13 @@ function notchModel(model, options) {
 				// find start of notch
 				var difference_point = makerjs.point.subtract(end, origin)
 
-				// arbitarily decided that all notches go at 0.3 percent of length
-				// TODO: this should get changed to `0.5` later, but for now wanted it to
-				// be non-centered so it's easier to visually align.
-				var notch_start = (length)*0.3
+				// todo: notches for walls do not mate with the next wall (eg along the vertical axis)
+				// dont include thickness shift on the side walls, but do include on the bottom/top
+
+				// arbitarily decided that all notches go at 0.5 percent of length
+				var notch_start = (length)*0.5
 				if ( is_walls ) {
-					notch_start = (length+thickness)*0.3
+					notch_start = (length+thickness)*0.5
 				}
 				// var notch_start = 0.3*length
 				var notch_midline_as_percent = notch_start/length
@@ -182,7 +182,7 @@ function notchModel(model, options) {
 	// as we cannot export just a single model
 	if ( notches_are_boxes ) {
 		return {
-			models: boxes
+			models: boxes 	// TODO: is this export json correct or should boxes be key-value??
 		}
 	} else {
 		return new makerjs.models.ConnectTheDots(true, points)		
@@ -283,7 +283,7 @@ var strokeModel = function(model, stroke) {
 }
 
 
-if ( 0 ) {
+if ( 1 ) {
 	
 	// Model of pixel heart created by another script, hard-coded here for use in maker playground
 	var pixel_heart = {"paths":{"ShapeLine1":{"type":"line","origin":[0,9],"end":[1,9]},"ShapeLine2":{"type":"line","origin":[1,9],"end":[1,10]},"ShapeLine3":{"type":"line","origin":[1,10],"end":[2,10]},"ShapeLine4":{"type":"line","origin":[2,10],"end":[2,11]},"ShapeLine5":{"type":"line","origin":[2,11],"end":[5,11]},"ShapeLine6":{"type":"line","origin":[5,11],"end":[5,10]},"ShapeLine7":{"type":"line","origin":[5,10],"end":[8,10]},"ShapeLine8":{"type":"line","origin":[8,10],"end":[8,11]},"ShapeLine9":{"type":"line","origin":[8,11],"end":[11,11]},"ShapeLine10":{"type":"line","origin":[11,11],"end":[11,10]},"ShapeLine11":{"type":"line","origin":[11,10],"end":[12,10]},"ShapeLine12":{"type":"line","origin":[12,10],"end":[12,9]},"ShapeLine13":{"type":"line","origin":[12,9],"end":[13,9]},"ShapeLine14":{"type":"line","origin":[13,9],"end":[13,6]},"ShapeLine15":{"type":"line","origin":[13,6],"end":[12,6]},"ShapeLine16":{"type":"line","origin":[12,6],"end":[12,5]},"ShapeLine17":{"type":"line","origin":[12,5],"end":[11,5]},"ShapeLine18":{"type":"line","origin":[11,5],"end":[11,4]},"ShapeLine19":{"type":"line","origin":[11,4],"end":[10,4]},"ShapeLine20":{"type":"line","origin":[10,4],"end":[10,3]},"ShapeLine21":{"type":"line","origin":[10,3],"end":[9,3]},"ShapeLine22":{"type":"line","origin":[9,3],"end":[9,2]},"ShapeLine23":{"type":"line","origin":[9,2],"end":[8,2]},"ShapeLine24":{"type":"line","origin":[8,2],"end":[8,1]},"ShapeLine25":{"type":"line","origin":[8,1],"end":[7,1]},"ShapeLine26":{"type":"line","origin":[7,1],"end":[7,0]},"ShapeLine27":{"type":"line","origin":[7,0],"end":[6,0]},"ShapeLine28":{"type":"line","origin":[6,0],"end":[6,1]},"ShapeLine29":{"type":"line","origin":[6,1],"end":[5,1]},"ShapeLine30":{"type":"line","origin":[5,1],"end":[5,2]},"ShapeLine31":{"type":"line","origin":[5,2],"end":[4,2]},"ShapeLine32":{"type":"line","origin":[4,2],"end":[4,3]},"ShapeLine33":{"type":"line","origin":[4,3],"end":[3,3]},"ShapeLine34":{"type":"line","origin":[3,3],"end":[3,4]},"ShapeLine35":{"type":"line","origin":[3,4],"end":[2,4]},"ShapeLine36":{"type":"line","origin":[2,4],"end":[2,5]},"ShapeLine37":{"type":"line","origin":[2,5],"end":[1,5]},"ShapeLine38":{"type":"line","origin":[1,5],"end":[1,6]},"ShapeLine39":{"type":"line","origin":[1,6],"end":[0,6]},"ShapeLine40":{"type":"line","origin":[0,6],"end":[0,9]}}}
