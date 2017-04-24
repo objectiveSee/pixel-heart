@@ -30,163 +30,96 @@ var notchModelsInParent = function(parent_model, options) {
 	return newmodel
 }
 
-/**
- * 1 means outward, -1 means inward
- */
-function notchDirection(i, pattern) {
-	var result = i % pattern.length
-	// console.log(i,result,pattern[result])
-	return pattern[result]
+var pathCenterPoint = function(path, offset) {
+	var x = (path.origin[0] + path.end[0])/2
+	var y = (path.origin[1] + path.end[1])/2    
+	return [x-offset[0],y-offset[1]]
 }
 
 /**
- * TODO: `pattern` logic should evolve to specify the direction of traversal of chain and 
- * the starting point of the traversal for applying direction to. right now you have to know
- * where your model starts and which direction to go when defining the model.
+ * TODO: there may be bugs when re-using `original_model` after calling notchModel()
+ * not sure if cloneObject() was what we wanted. Just keep an eye out!
  * 
  * @returns {Model} a new model object
  */
-function notchModel(model, options) {
+function notchModel(original_model, options) {
 
+	var model = makerjs.cloneObject(original_model)
+
+  	if ( model.models ) {	// todo; maybe this is ok?
+		throw new Error('Adding models to model with sub-models already.')
+	}  
+    model.models = {}
 	var points = []
 	var boxes = []
     var thickness = (typeof options.thickness != 'undefined') ? options.thickness : 0.1
 	var is_walls = (typeof options.is_walls != 'undefined') ? options.is_walls : false
 	var notch_width = options.notch_width
-	var notches_are_boxes = (typeof options.notches_are_boxes != 'undefined') ? 
-							options.notches_are_boxes : false
+    var notch_height = thickness*2	// double size because half will overhang the model
+	var return_notches_without_model = (typeof options.return_notches_without_model != 'undefined') ? 
+							options.return_notches_without_model : false
 	// default pattern is always "in"
 	var pattern = (typeof options.pattern != 'undefined') ? options.pattern : [-1]	
-	
 	if (typeof notch_width == 'undefined') {
 		throw new Error('notch_width must be specified.')
 	}
+	if ( thickness == 0 ) {	// no need to notch if no thickness specified
+		return model
+	}
 
-	// internal state variables
-	var first_time = true
-	var i = 0
-	var isEven = true
-	var countPaths = Object.keys(model.paths).length
-
-	// built an array of points by walking through the model path-by-path and 
-	// extracing their end_points.
-	// ASSUME: the `origin` of each path is equal to the `end` of the previously traversed path
+	// internal state variables    
+	var rect_models = []
 
 	makerjs.model.walk(model, {
 
 		onPath: function(walkPathObject) {
 
-			if ( first_time ) {
-				// add first origin only
-				first_time = false
-				points.push(walkPathObject.pathContext.origin)
-			}
+			var path = walkPathObject.pathContext            
+			var angle = makerjs.angle.ofLineInDegrees(path)
 
-			var last_end = points[points.length-1]
-			var path = walkPathObject.pathContext
-			var origin = path.origin
-			var end = path.end
+			// build a rect that centers on the path and overhangs on eachside by desired notch size
+			// we will either subtract or add this rect to the original model based on `pattern`
+			var notch_rect = new makerjs.models.Rectangle(notch_width, notch_height)
 
+			// re-center the rect to be centered on origin
+			var notch_center = pathCenterPoint(path, [notch_width/2,notch_height/2])
+			makerjs.model.move(notch_rect, notch_center)
 
-			
-			// check to ensure that path.origin is equal to the `end` point of the previous path
-			// if not, try flipping origin and end to see if that fixes it (as observed that 
-			// sometimes the points are flipped)
+			// rotate notch to match the slope of the path
+			var rect_extents = makerjs.measure.modelExtents(notch_rect)
+			makerjs.model.rotate(notch_rect, angle, rect_extents.center)
 
-			if ( ! makerjs.measure.isPointEqual(last_end, origin, POINT_EQUAL_TOLERANCE) ) {
-				// console.log(':: warning :: path is broken.'+pointAsString(last_end)+' should equal '+pointAsString(origin))
-				if ( ! makerjs.measure.isPointEqual(last_end, end, POINT_EQUAL_TOLERANCE) ) {
-					console.log(':: error :: path is still broken after flipping origin and end')
-				}
-				var tmp = origin
-				origin = end
-				end = tmp
-			}
+			// save model in array for later
+			rect_models.push(notch_rect)
 
-			if ( thickness > 0 ) {	// if 0 there is no notch so dont add unnecessary points
-
-				var angle = makerjs.angle.ofLineInDegrees(path)
-				var length = makerjs.measure.pathLength(path)
-
-				// ASSUME: paths in the pixel heart alternate vertical and horizontal direction
-				var isHorizontal = ( makerjs.measure.isAngleEqual(angle,0) || 
-									makerjs.measure.isAngleEqual(angle,180) ) 
-									? true : false
-				if ( isHorizontal && !isEven ) {
-					throw new Error('bad swap')
-				}
-
-				// find start of notch
-				var difference_point = makerjs.point.subtract(end, origin)
-
-				// todo: notches for walls do not mate with the next wall (eg along the vertical axis)
-				// dont include thickness shift on the side walls, but do include on the bottom/top
-
-				// arbitarily decided that all notches go at 0.5 percent of length
-				var notch_start = (length)*0.5
-				if ( is_walls ) {
-					notch_start = (length+thickness)*0.5
-				}
-				// var notch_start = 0.3*length
-				var notch_midline_as_percent = notch_start/length
-
-				// logic to calculate notch position is based on percentage of total width
-				// and uses scale() to determine the point.
-				var notch_width_as_percent = notch_width / length
-
-				var mod_a = makerjs.point.scale(difference_point, notch_midline_as_percent - notch_width_as_percent/2)
-				var mod_b = makerjs.point.scale(difference_point, notch_midline_as_percent + notch_width_as_percent/2)
-
-				var a = makerjs.point.add(origin, mod_a)
-				var b = makerjs.point.add(origin, mod_b)
-
-				var notch_point = isHorizontal ? [0,thickness] : [thickness,0]
-				var aa = makerjs.point.add(a, notch_point)
-				var bb = makerjs.point.add(b, notch_point)
-
-				// build a line to test whether it is inside or outside the shape
-				// if outside, swap it so we always have the notches internal
-				var line = new makerjs.paths.Line(aa, bb)
-				// make test line because there is no `isPointInsideModel` function
-				// modify aa/bb if we want to go outside not inside or vice versus
-				var line_is_inside_model = makerjs.model.isPathInsideModel(line, model)
-				var direction_of_notch = notchDirection(i, pattern)
-				
-				// swap to an outward notch if specified by pattern
-				if (( line_is_inside_model &&  direction_of_notch == 1 ) ||
-				    ( !line_is_inside_model &&  direction_of_notch == -1)) {
-
-					notch_point = isHorizontal ? [0,-thickness] : [-thickness,0]
-					aa = makerjs.point.add(a, notch_point)
-					bb = makerjs.point.add(b, notch_point)
-				}
-
-				if ( notches_are_boxes ) {
-					var box = new makerjs.models.ConnectTheDots(true, [a,aa,bb,b])
-					boxes.push(box)
-				}
-				points.push(a,aa,bb,b) //  not needed if `notches_are_boxes` is true
-			}
-
-			isEven = !isEven
-			points.push(end)
-			i++		
 		}
 	})
+    
+    if ( return_notches_without_model ) {
+      model = { // overwrite as empty and only add notches below 
+        models: {}
+      }	
+    }
+    // merge them all!
+    var j = 0
+    rect_models.forEach(function(rect) {
 
-	if ( i != countPaths ) {
-		console.log('WARNING::: model.walk() was not synchronous')
-	}
+      if ( ! return_notches_without_model ) {
+        
+        // depending on `pattern`, add or subtract the notch
+        var pattern_index = j.mod(pattern.length)
+        if ( pattern[pattern_index] < 0 ) { 
+          makerjs.model.combineSubtraction(model, rect)
+        } else {
+          makerjs.model.combineUnion(model, rect)
+        }
 
-	// if `notches_are_boxes` then the desire result is an array of models which are boxes
-	// as we cannot export just a single model
-	if ( notches_are_boxes ) {
-		return {
-			models: boxes 	// TODO: is this export json correct or should boxes be key-value??
-		}
-	} else {
-		return new makerjs.models.ConnectTheDots(true, points)		
-	}
+      }
+      model.models['notch'+j] = rect
+      j++
+    })
+
+	return model
 }
 
 
@@ -295,10 +228,9 @@ if ( 1 ) {
 			inner: pixel_heart,
 			outer: notchModel(expanded_model, {
 				thickness: 0.1,
-				notch_width: 0.2,
-				notches_are_boxes: true
+				notch_width: 0.4,
+				return_notches_without_model: true
 			})
-			//expanded_model: expanded_model
 		}
 	}
 
