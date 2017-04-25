@@ -22,9 +22,9 @@ var notchModelsInParent = function(parent_model, options) {
 		// console.log(JSON.stringify(notched_model,null,' '))
 		newModels[k] = notched_model
 	})
-	var newmodel = JSON.parse(JSON.stringify(parent_model))	// copy model
-	newmodel.models = newModels
-	return newmodel
+	var newParentModel = makerjs.cloneObject(parent_model)
+	newParentModel.models = newModels
+	return newParentModel
 }
 
 /**
