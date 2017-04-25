@@ -7,6 +7,7 @@ var Heart 				= require('./heart.js')
 var notcher 			= require('./notcher.js')
 var Boxes				= require('./box.js')
 var LayoutGrid			= require('./layout-grid.js')
+var StrokeModel 		= require('./stroke-model.js')
 
 /** 
  * Properties of design
@@ -35,12 +36,12 @@ var heart_notch_options = {
 
 // Create 2nd expanded model & notch it
 heart_notch_options.notches_are_boxes = false
-var outer_model = notcher.strokeModel(heart, outer_stroke_around_heart)
+var outer_model = StrokeModel(heart, outer_stroke_around_heart)
 var notched_heart_outer = notcher.notchModel(outer_model, heart_notch_options)
 
 // Create 1st expanded model & notch it
 heart_notch_options.notches_are_boxes = true
-var inner_model = notcher.strokeModel(heart, inner_stroke_around_heart)
+var inner_model = StrokeModel(heart, inner_stroke_around_heart)
 var notched_heart_inner = notcher.notchModel(inner_model, heart_notch_options)
 
 
