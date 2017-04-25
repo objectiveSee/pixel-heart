@@ -32,7 +32,27 @@ var notchModelsInParent = function(parent_model, options) {
  */
 var logRect = function(rect) {
 	var e = makerjs.measure.modelExtents(rect)
-	console.log(e)
+	// console.log(e)
+	console.log(rect)
+}
+
+/**
+ * Closes a 3-sides rectangle (eg. one that had 3 paths)
+ */
+var closeRect = function(rect) {
+
+	var chain = makerjs.model.findSingleChain(rect)
+
+	if ( !chain ) {
+		throw new Error('failed to find chain in rect: '+JSON.stringify(rect))
+	} else {
+		if ( chain.links.length != 3 ) {
+			throw new Error('expecting 3 links in chain')
+		}
+	}
+	var points = makerjs.chain.toKeyPoints(chain)
+	var new_model = new makerjs.models.ConnectTheDots(true, points)
+	return new_model
 }
 
 /**
@@ -52,6 +72,7 @@ var centerModelAtPoint = function(model, point) {
 
 /**
  * Calculate the center point of a path.
+ * Optionally can offset the center by a specified `offset` point.
  */
 var pathCenterPoint = function(path, offset) {
 	if ( typeof offset == 'undefined' ) {
@@ -63,25 +84,25 @@ var pathCenterPoint = function(path, offset) {
 }
 
 /**
- * TODO: there may be bugs when re-using `original_model` after calling notchModel()
- * not sure if cloneObject() was what we wanted. Just keep an eye out!
  * 
  * @returns {Model} a new model object
  */
 function notchModel(original_model, options) {
 
-	var model = makerjs.cloneObject(original_model)
+	// TODO: there may be bugs when re-using `original_model` after calling notchModel()
+	// not sure if cloneObject() was what we wanted. Just keep an eye out!	
+    var model = makerjs.cloneObject(original_model)
 
-  	if ( model.models ) {	// todo; maybe this is ok?
+	if ( model.models ) {	// todo; maybe this is ok?
 		throw new Error('Adding models to model with sub-models already.')
 	}  
-    model.models = {}
+	model.models = {}
 	var points = []
 	var boxes = []
     var thickness = (typeof options.thickness != 'undefined') ? options.thickness : 0.1
 	var is_walls = (typeof options.is_walls != 'undefined') ? options.is_walls : false
 	var notch_width = options.notch_width
-    var notch_height = thickness*2	// double size because half will overhang the model
+    var notch_height = thickness * 2	// double size because half will overhang the model
 	var return_notches_without_model = (typeof options.return_notches_without_model != 'undefined') ? 
 							options.return_notches_without_model : false
 	// default pattern is always "in"
@@ -103,7 +124,6 @@ function notchModel(original_model, options) {
 			var path = walkPathObject.pathContext            
 			var angle = makerjs.angle.ofLineInDegrees(path)
 
-			// build a rect that centers on the path and overhangs on eachside by desired notch size
 			// we will either subtract or add this rect to the original model based on `pattern`
 			var notch_rect = new makerjs.models.Rectangle(notch_width, notch_height)
 
@@ -121,34 +141,54 @@ function notchModel(original_model, options) {
 		}
 	})
     
-    if ( return_notches_without_model ) {
-      model = { // overwrite as empty and only add notches below 
-        models: {}
-      }	
-    }
     // merge them all!
     var j = 0
+    var notches_only = []
     rect_models.forEach(function(rect) {
 
-      if ( ! return_notches_without_model ) {
+    	var pattern_index = j.mod(pattern.length)
         
         // depending on `pattern`, add or subtract the notch
-        var pattern_index = j.mod(pattern.length)
         if ( pattern[pattern_index] < 0 ) { 
           makerjs.model.combineSubtraction(model, rect)
         } else {
           makerjs.model.combineUnion(model, rect)
         }
 
-      }
-      model.models['notch'+j] = rect
-      j++
+        // store reference
+		model.models['notch'+j] = rect
+
+		j++
     })
 
-	return model
+    /**
+     *
+     * Two options for output: if `return_notches_without_model` is true then we only return
+     * the close rectangles for each notch.
+     * Else, we return the model which will include the notches are part of the model path
+     *
+     */
+    if ( return_notches_without_model ) {
+    	var final_model = {
+    		models: {}
+    	}
+    	var k = 0
+    	rect_models.forEach(function(rect) {
+    		var closed_rect = closeRect(rect)
+    		if ( typeof closed_rect == 'undefined' ) {
+    			throw new Error('undefined rect returned')
+    		}
+    		final_model.models['notch-hole-'+k] = closed_rect
+    		k++
+    	})
+
+    	return final_model
+    } else {
+		return model
+	}
 }
 
-if ( 1 ) {
+if ( 0 ) {
 	
 	// Model of pixel heart created by another script, hard-coded here for use in maker playground
 	var pixel_heart = {"paths":{"ShapeLine1":{"type":"line","origin":[0,9],"end":[1,9]},"ShapeLine2":{"type":"line","origin":[1,9],"end":[1,10]},"ShapeLine3":{"type":"line","origin":[1,10],"end":[2,10]},"ShapeLine4":{"type":"line","origin":[2,10],"end":[2,11]},"ShapeLine5":{"type":"line","origin":[2,11],"end":[5,11]},"ShapeLine6":{"type":"line","origin":[5,11],"end":[5,10]},"ShapeLine7":{"type":"line","origin":[5,10],"end":[8,10]},"ShapeLine8":{"type":"line","origin":[8,10],"end":[8,11]},"ShapeLine9":{"type":"line","origin":[8,11],"end":[11,11]},"ShapeLine10":{"type":"line","origin":[11,11],"end":[11,10]},"ShapeLine11":{"type":"line","origin":[11,10],"end":[12,10]},"ShapeLine12":{"type":"line","origin":[12,10],"end":[12,9]},"ShapeLine13":{"type":"line","origin":[12,9],"end":[13,9]},"ShapeLine14":{"type":"line","origin":[13,9],"end":[13,6]},"ShapeLine15":{"type":"line","origin":[13,6],"end":[12,6]},"ShapeLine16":{"type":"line","origin":[12,6],"end":[12,5]},"ShapeLine17":{"type":"line","origin":[12,5],"end":[11,5]},"ShapeLine18":{"type":"line","origin":[11,5],"end":[11,4]},"ShapeLine19":{"type":"line","origin":[11,4],"end":[10,4]},"ShapeLine20":{"type":"line","origin":[10,4],"end":[10,3]},"ShapeLine21":{"type":"line","origin":[10,3],"end":[9,3]},"ShapeLine22":{"type":"line","origin":[9,3],"end":[9,2]},"ShapeLine23":{"type":"line","origin":[9,2],"end":[8,2]},"ShapeLine24":{"type":"line","origin":[8,2],"end":[8,1]},"ShapeLine25":{"type":"line","origin":[8,1],"end":[7,1]},"ShapeLine26":{"type":"line","origin":[7,1],"end":[7,0]},"ShapeLine27":{"type":"line","origin":[7,0],"end":[6,0]},"ShapeLine28":{"type":"line","origin":[6,0],"end":[6,1]},"ShapeLine29":{"type":"line","origin":[6,1],"end":[5,1]},"ShapeLine30":{"type":"line","origin":[5,1],"end":[5,2]},"ShapeLine31":{"type":"line","origin":[5,2],"end":[4,2]},"ShapeLine32":{"type":"line","origin":[4,2],"end":[4,3]},"ShapeLine33":{"type":"line","origin":[4,3],"end":[3,3]},"ShapeLine34":{"type":"line","origin":[3,3],"end":[3,4]},"ShapeLine35":{"type":"line","origin":[3,4],"end":[2,4]},"ShapeLine36":{"type":"line","origin":[2,4],"end":[2,5]},"ShapeLine37":{"type":"line","origin":[2,5],"end":[1,5]},"ShapeLine38":{"type":"line","origin":[1,5],"end":[1,6]},"ShapeLine39":{"type":"line","origin":[1,6],"end":[0,6]},"ShapeLine40":{"type":"line","origin":[0,6],"end":[0,9]}}}
@@ -161,7 +201,7 @@ if ( 1 ) {
 			outer: notchModel(pixel_heart, {
 				thickness: 0.1,
 				notch_width: 0.4,
-				return_notches_without_model: false
+				return_notches_without_model: true
 			})
 		}
 	}
