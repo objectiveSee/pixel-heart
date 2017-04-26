@@ -83,6 +83,8 @@ var pathCenterPoint = function(path, offset) {
 	return [x-offset[0],y-offset[1]]
 }
 
+var TOLERANCE = 0.0001
+
 /**
  * 
  * @returns {Model} a new model object
@@ -127,9 +129,37 @@ function notchModel(original_model, options) {
 			// we will either subtract or add this rect to the original model based on `pattern`
 			var notch_rect = new makerjs.models.Rectangle(notch_width, notch_height)
 
+			var notch_location_percentage = 0.5	// the % into the path's lenth that the notch is centered on
+			if ( is_walls ) {
+				// for walls, their length is shorter by the thickness of the wood than the model paths
+				// that they join with on the base & top. Therefore, we need to adjust the notch location
+				// so it still mates correctly
+				// calculate the position of the notch as a percentage
+
+				// use the angle to determine which direction we need to offset the notch
+				// and also don't offset notches on the sides of wall pieces, just the top/bottom
+				var length = makerjs.measure.pathLength(path)
+				
+				if ( makerjs.measure.isAngleEqual(angle, 90, TOLERANCE)
+					|| makerjs.measure.isAngleEqual(angle, 270, TOLERANCE )) {
+					// vertical part of wall, don't offset
+				} else if ( makerjs.measure.isAngleEqual(angle, 0, TOLERANCE )) {
+					var position = length/2 + thickness/2
+					notch_location_percentage = position / length
+				} else if ( makerjs.measure.isAngleEqual(angle, 180, TOLERANCE )) {
+					// wall is on top, so offset in opposite direction since path
+					// starts on right and moves left
+					var position = length/2 - thickness/2
+					notch_location_percentage = position / length
+				}
+
+			}
+
+			var notch_location = makerjs.point.middle(path, notch_location_percentage)
+
 			// re-center the rect to be centered on origin
-			var notch_center = pathCenterPoint(path)
-            centerModelAtPoint(notch_rect, notch_center)
+			// var notch_center = pathCenterPoint(path)
+            centerModelAtPoint(notch_rect, notch_location)
 
 			// rotate notch to match the slope of the path
 			var rect_extents = makerjs.measure.modelExtents(notch_rect)
