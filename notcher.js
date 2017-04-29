@@ -194,7 +194,7 @@ function notchModel(original_model, options) {
     /**
      *
      * Two options for output: if `return_notches_without_model` is true then we only return
-     * the close rectangles for each notch.
+     * the closed rectangles for each notch.
      * Else, we return the model which will include the notches are part of the model path
      *
      */
