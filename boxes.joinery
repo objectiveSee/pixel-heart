@@ -1,0 +1,215 @@
+﻿{
+	"SVGString": ["<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"11.01in\" height=\"8.01in\" viewBox=\"0 0 793 577\">\r\n  <defs>\r\n    <style>\r\n      .a {\r\n        fill: #fff;\r\n        stroke: #000;\r\n        stroke-miterlimit: 10;\r\n      }\r\n    </style>\r\n  </defs>\r\n  <title>cube_2in</title>\r\n  <line class=\"a\" x1=\"144.5\" y1=\"216.5\" x2=\"144.5\" y2=\"360.5\"/>\r\n  <line class=\"a\" x1=\"0.5\" y1=\"216.5\" x2=\"144.5\" y2=\"216.5\"/>\r\n  <line class=\"a\" x1=\"0.5\" y1=\"360.5\" x2=\"0.5\" y2=\"216.5\"/>\r\n  <line class=\"a\" x1=\"144.5\" y1=\"360.5\" x2=\"0.5\" y2=\"360.5\"/>\r\n  <line class=\"a\" x1=\"360.5\" y1=\"360.5\" x2=\"216.5\" y2=\"360.5\"/>\r\n  <line class=\"a\" x1=\"360.5\" y1=\"216.5\" x2=\"360.5\" y2=\"360.5\"/>\r\n  <line class=\"a\" x1=\"216.5\" y1=\"216.5\" x2=\"360.5\" y2=\"216.5\"/>\r\n  <line class=\"a\" x1=\"216.5\" y1=\"360.5\" x2=\"216.5\" y2=\"216.5\"/>\r\n  <line class=\"a\" x1=\"576.5\" y1=\"216.5\" x2=\"576.5\" y2=\"360.5\"/>\r\n  <line class=\"a\" x1=\"432.5\" y1=\"216.5\" x2=\"576.5\" y2=\"216.5\"/>\r\n  <line class=\"a\" x1=\"432.5\" y1=\"360.5\" x2=\"432.5\" y2=\"216.5\"/>\r\n  <line class=\"a\" x1=\"576.5\" y1=\"360.5\" x2=\"432.5\" y2=\"360.5\"/>\r\n  <line class=\"a\" x1=\"216.5\" y1=\"432.5\" x2=\"360.5\" y2=\"432.5\"/>\r\n  <line class=\"a\" x1=\"216.5\" y1=\"576.5\" x2=\"216.5\" y2=\"432.5\"/>\r\n  <line class=\"a\" x1=\"360.5\" y1=\"576.5\" x2=\"216.5\" y2=\"576.5\"/>\r\n  <line class=\"a\" x1=\"360.5\" y1=\"432.5\" x2=\"360.5\" y2=\"576.5\"/>\r\n  <line class=\"a\" x1=\"360.5\" y1=\"0.5\" x2=\"360.5\" y2=\"144.5\"/>\r\n  <line class=\"a\" x1=\"216.5\" y1=\"0.5\" x2=\"360.5\" y2=\"0.5\"/>\r\n  <line class=\"a\" x1=\"216.5\" y1=\"144.5\" x2=\"216.5\" y2=\"0.5\"/>\r\n  <line class=\"a\" x1=\"360.5\" y1=\"144.5\" x2=\"216.5\" y2=\"144.5\"/>\r\n  <line class=\"a\" x1=\"792.5\" y1=\"360.5\" x2=\"648.5\" y2=\"360.5\"/>\r\n  <line class=\"a\" x1=\"792.5\" y1=\"216.5\" x2=\"792.5\" y2=\"360.5\"/>\r\n  <line class=\"a\" x1=\"648.5\" y1=\"216.5\" x2=\"792.5\" y2=\"216.5\"/>\r\n  <line class=\"a\" x1=\"648.5\" y1=\"360.5\" x2=\"648.5\" y2=\"216.5\"/>\r\n</svg>\r\n"],
+	"SVGScale": [25.4],
+	"SVGPos": [
+		["Point", 760.80471, 401.12483]
+	],
+	"joints": [{
+		"0": {
+			"shape": "0",
+			"path": "0"
+		},
+		"1": {
+			"shape": "0",
+			"path": "7"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "5"
+		},
+		"1": {
+			"shape": "0",
+			"path": "10"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "8"
+		},
+		"1": {
+			"shape": "0",
+			"path": "23"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "21"
+		},
+		"1": {
+			"shape": "0",
+			"path": "2"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "6"
+		},
+		"1": {
+			"shape": "0",
+			"path": "19"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "4"
+		},
+		"1": {
+			"shape": "0",
+			"path": "12"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "15"
+		},
+		"1": {
+			"shape": "0",
+			"path": "11"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "14"
+		},
+		"1": {
+			"shape": "0",
+			"path": "20"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "13"
+		},
+		"1": {
+			"shape": "0",
+			"path": "3"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "1"
+		},
+		"1": {
+			"shape": "0",
+			"path": "18"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "17"
+		},
+		"1": {
+			"shape": "0",
+			"path": "22"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}, {
+		"0": {
+			"shape": "0",
+			"path": "16"
+		},
+		"1": {
+			"shape": "0",
+			"path": "9"
+		},
+		"profile": "finger joint (90deg) 0",
+		"m": 0,
+		"f": 1,
+		"dirM": 1,
+		"dirF": -1,
+		"revA": 1,
+		"revB": -1
+	}],
+	"jointProfileList": [{
+		"name": "finger joint (90deg)",
+		"profile": "finger joint (90deg) 0",
+		"notes": "notes",
+		"param": {
+			"material thickness (M)": 3,
+			"material thickness (F)": 3,
+			"finger width": 8,
+			"finger radius": 0,
+			"offset start": 0,
+			"offset end": 0,
+			"tolerance": 0
+		}
+	}],
+	"jointProfileCount": 1
+}
