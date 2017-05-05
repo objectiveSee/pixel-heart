@@ -59,57 +59,87 @@ var gridLayoutOptions = {
 var heart = Heart(inner_heart_width)
 
 
+/**
+ * Outer Model & Boxes
+ */
 // Create outer expanded model & notch it
 heart_notch_options.return_notches_without_model = false
 var outer_model = StrokeModel(heart, outer_stroke_around_heart)
-// var notched_heart_outer = notcher.notchModel(outer_model, heart_notch_options)
-
-
-// Create inner expanded model & notch it
-heart_notch_options.return_notches_without_model = true
-var inner_model = StrokeModel(heart, inner_stroke_around_heart)
-// var notched_heart_inner = notcher.notchModel(inner_model, heart_notch_options)
-
-// Create inner boxes
-var boxes_inner = Boxes.makeBoxWallsAlongModelPerimeter(inner_model, box_depth, 0.1)
-// var notched_boxes_inner = notcher.notchModelsInParent(boxes_inner, box_notch_options)
-// Align boxes in a grid
-LayoutGrid(boxes_inner, gridLayoutOptions, boxes_outer)
-
+var notched_heart_outer = notcher.notchModel(outer_model, heart_notch_options)
 
 // Create outer boxes
-var boxes_outer = Boxes.makeBoxWallsAlongModelPerimeter(outer_model, box_depth, 0.1)
-// var notched_boxes_outer = notcher.notchModelsInParent(boxes_outer, box_notch_options)
+var boxes_outer = Boxes.makeBoxWallsAlongModelPerimeter(outer_model, box_depth, wood_thickness)
+var notched_boxes_outer = notcher.notchModelsInParent(boxes_outer, box_notch_options)
 // Align boxes in a grid and position above other model
-LayoutGrid(boxes_outer, gridLayoutOptions, outer_model)
+LayoutGrid(notched_boxes_outer, gridLayoutOptions, outer_model)
+
+
+/**
+ TODO: add text to each box.
+var addTextToBoxes = function(boxes) {
+
+	var root_object = boxes.models
+
+	console.log('xxx'+JSON.stringify(root_object,null,'\t'))
+
+	Object.keys(root_object).forEach(function(box_key) {
+		var box = root_object[box_key]
+		if ( !box.part_id ) {
+			console.log('box has no part_id')
+		} else {
+			console.log('box part_id '+box.part_id)
+
+		}
+	})
+}
+addTextToBoxes(notched_boxes_outer)
+*/
+
+
+
+// /**
+//  * Inner Model & Boxes
+//  */
+// // Create inner expanded model & notch it
+// heart_notch_options.return_notches_without_model = true
+// var inner_model = StrokeModel(heart, inner_stroke_around_heart)
+// // var notched_heart_inner = notcher.notchModel(inner_model, heart_notch_options)
+
+// // Create inner boxes
+// var boxes_inner = Boxes.makeBoxWallsAlongModelPerimeter(inner_model, box_depth, wood_thickness)
+// // var notched_boxes_inner = notcher.notchModelsInParent(boxes_inner, box_notch_options)
+// // Align boxes in a grid
+// LayoutGrid(boxes_inner, gridLayoutOptions, boxes_outer)
+
+
 
 
 
 // Assemble the final model that will be output
 var all_models_combined = {
 	models: {
-		boxes_outer:boxes_outer,
-		outer_model:outer_model,
+		// boxes_outer:boxes_outer,
+		notched_heart_outer:notched_heart_outer,
 
 		// boxes_inner: boxes_inner,
 		// inner_model: inner_model,
 
 		// heart: heart
-		// notched_boxes_outer: notched_boxes_outer,
+		notched_boxes_outer: notched_boxes_outer,
 		// notched_boxes_inner: notched_boxes_inner,
 	}
 }
 
-// SVG export options
+// Export final model
 var export_options = {
 	strokeWidth: 3,
 	units: 'mm',
 	stroke: 'red',
 	useSvgPathOnly: true
 }
-var flattened_model = FlattenModel(all_models_combined)
-var svg = makerjs.exporter.toSVG(flattened_model,export_options)
 
+// var joinery_svg = JoineryExport(all_models_combined)
+var svg = makerjs.exporter.toSVG(all_models_combined,export_options)
 
 var filename = 'out.svg'
 var output = svg
