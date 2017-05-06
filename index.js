@@ -8,6 +8,7 @@ var LayoutGrid			= require('./layout-grid.js')
 var StrokeModel 		= require('./stroke-model.js')
 var JoineryExport		= require('./JoineryExport.js')
 var FlattenModel 		= require('./flatten-model.js')
+var TextLabels 			= require('./text-labels.js')
 
 /** 
  * Properties of design
@@ -75,26 +76,10 @@ LayoutGrid(notched_boxes_outer, gridLayoutOptions, outer_model)
 
 
 /**
- TODO: add text to each box.
-var addTextToBoxes = function(boxes) {
-
-	var root_object = boxes.models
-
-	console.log('xxx'+JSON.stringify(root_object,null,'\t'))
-
-	Object.keys(root_object).forEach(function(box_key) {
-		var box = root_object[box_key]
-		if ( !box.part_id ) {
-			console.log('box has no part_id')
-		} else {
-			console.log('box part_id '+box.part_id)
-
-		}
-	})
-}
-addTextToBoxes(notched_boxes_outer)
-*/
-
+ * Add text labels on the "blue" layer to some models.
+ */
+var text_models = TextLabels.buildTextForModels(notched_boxes_outer)
+text_models.layer = 'blue'
 
 
 // /**
@@ -120,6 +105,7 @@ var all_models_combined = {
 	models: {
 		// boxes_outer:boxes_outer,
 		notched_heart_outer:notched_heart_outer,
+		text_models: text_models,
 
 		// boxes_inner: boxes_inner,
 		// inner_model: inner_model,
@@ -132,17 +118,20 @@ var all_models_combined = {
 
 // Export final model
 var export_options = {
-	strokeWidth: 3,
+	strokeWidth: 1,
 	units: 'mm',
 	stroke: 'red',
 	useSvgPathOnly: true
 }
 
 // var joinery_svg = JoineryExport(all_models_combined)
+console.log('Converting to SVG...')
 var svg = makerjs.exporter.toSVG(all_models_combined,export_options)
+console.log('SVG conversion finished')
 
 var filename = 'out.svg'
 var output = svg
+console.log('Saving...')
 fs.writeFile(filename, output, function(err) {
     if(err) {
         return console.log(err);

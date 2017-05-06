@@ -207,7 +207,8 @@ var makeBoxesAlongModel = function(model, depth, thickness) {
 
 		box.prior_turn_modifications = prior_turn_modifications
 		box.next_turn_modifications = next_turn_modifications
-		box.part_id = 'wall '+i
+		// box.part_id = i+'('+length.toFixed(1)+')'
+		box.part_id = 'W '+i
 
 		models.push(box)
 

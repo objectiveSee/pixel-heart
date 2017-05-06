@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "makerjs": "^0.9.48",
+    "opentype.js": "^0.7.1",
     "pdfkit": "^0.8.0",
     "point-geometry": "^0.1.0",
     "raphael": "^2.2.7",
