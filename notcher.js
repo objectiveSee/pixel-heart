@@ -125,37 +125,76 @@ function notchModel(original_model, options) {
 
 			var path = walkPathObject.pathContext            
 			var angle = makerjs.angle.ofLineInDegrees(path)
+			var length = makerjs.measure.pathLength(path)
+			var notch_location_percentage = 0.5	// the % into the path's lenth that the notch is centered on
+			var modify_notch = 0
 
 			// we will either subtract or add this rect to the original model based on `pattern`
 			var notch_rect = new makerjs.models.Rectangle(notch_width, notch_height)
 
-			var notch_location_percentage = 0.5	// the % into the path's lenth that the notch is centered on
-			if ( is_walls ) {
-				// for walls, their length is shorter by the thickness of the wood than the model paths
-				// that they join with on the base & top. Therefore, we need to adjust the notch location
-				// so it still mates correctly
-				// calculate the position of the notch as a percentage
+			if ( makerjs.measure.isAngleEqual(angle, 90, TOLERANCE)
+				|| makerjs.measure.isAngleEqual(angle, 270, TOLERANCE )) {
 
-				// use the angle to determine which direction we need to offset the notch
-				// and also don't offset notches on the sides of wall pieces, just the top/bottom
-				var length = makerjs.measure.pathLength(path)
-				
-				if ( makerjs.measure.isAngleEqual(angle, 90, TOLERANCE)
-					|| makerjs.measure.isAngleEqual(angle, 270, TOLERANCE )) {
-					// vertical part of wall, don't offset
-				} else if ( makerjs.measure.isAngleEqual(angle, 0, TOLERANCE )) {
-					var position = length/2 + thickness/2
-					notch_location_percentage = position / length
-				} else if ( makerjs.measure.isAngleEqual(angle, 180, TOLERANCE )) {
-					// wall is on top, so offset in opposite direction since path
-					// starts on right and moves left
-					var position = length/2 - thickness/2
-					notch_location_percentage = position / length
+				// vertical part of wall, don't offset
+
+			} else if ( makerjs.measure.isAngleEqual(angle, 0, TOLERANCE )) {
+			
+				modify_notch = 1
+
+			} else if ( makerjs.measure.isAngleEqual(angle, 180, TOLERANCE )) {
+
+				// wall is on top, so offset in opposite direction since path
+				// starts on right and moves left
+				modify_notch = -1
+			
+			} else {
+				throw new Error('non multipe of 90 degree angle '+angle)
+			}
+
+			/**
+			 * Determine the notch location based on any modifications to the notch from generating the
+			 * box for it.
+			 * TODO: make more robust, for now hard-coding how this works. 
+			 */
+			if ( modify_notch && (model.prior_turn_modifications || model.next_turn_modifications)) {
+
+				if ( model.prior_turn_modifications && model.next_turn_modifications ) {
+
+					// length is same, but notch is 1 thickness later
+					// this is common on "1px" walls in the +y direction
+					var notch_offset = length/2 + thickness
+					notch_location_percentage = notch_offset/length
+
+				} else if ( model.next_turn_modifications ) {
+
+					// length is shorter by 1 thickness, notch is centered on the original length
+					// this is common the "3px" walls such as @ top of heart
+					var notch_offset = (length+thickness)/2
+					notch_location_percentage = notch_offset/length
+
+				} else if ( model.prior_turn_modifications ) {
+
+					// length is longer by 1 thickness, notch is centered on the original length
+					// this is only on the < 1px gap in the middle top of the heart
+					var notch_offset = (length+thickness)/2
+					notch_location_percentage = notch_offset/length
+
+				} else {
+
+					throw new Error('logic expected only three cases: '
+						+model.prior_turn_modifications+', '+model.next_turn_modifications)
+
 				}
 
+				// if doing the top notch, must flip the percentage since it goes from right to left
+				if ( modify_notch < 0 ) {
+					notch_location_percentage = 1-notch_location_percentage
+				}
 			}
 
 			var notch_location = makerjs.point.middle(path, notch_location_percentage)
+
+			// console.log('Part '+model.part_id+' has notch percent: '+notch_location_percentage)
 
 			// re-center the rect to be centered on origin
 			// var notch_center = pathCenterPoint(path)
@@ -194,7 +233,7 @@ function notchModel(original_model, options) {
     /**
      *
      * Two options for output: if `return_notches_without_model` is true then we only return
-     * the close rectangles for each notch.
+     * the closed rectangles for each notch.
      * Else, we return the model which will include the notches are part of the model path
      *
      */
