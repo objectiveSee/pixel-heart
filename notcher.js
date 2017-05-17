@@ -216,18 +216,32 @@ function notchModel(original_model, options) {
     rect_models.forEach(function(rect) {
 
     	var pattern_index = j.mod(pattern.length)
+    	var skip_rect = false
         
         // depending on `pattern`, add or subtract the notch
-        if ( pattern[pattern_index] < 0 ) { 
+
+        if ( pattern[pattern_index] == 0 ) { 
+        	// dont do any notch in this case
+        	skip_rect = true
+        } else if ( pattern[pattern_index] < 0 ) { 
           makerjs.model.combineSubtraction(model, rect)
         } else {
           makerjs.model.combineUnion(model, rect)
         }
 
-        // store reference
-		model.models['notch'+j] = rect
+        if ( !skip_rect ) {
+        	// store reference
+			model.models['notch'+j] = rect
+		} else {
+			rect.delete_me = true
+		}
 
 		j++
+    })
+
+    // remove from array if scheduled for deletion
+    rect_models = rect_models.filter(function(r) {
+    	return (r.delete_me != true)
     })
 
     /**

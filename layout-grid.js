@@ -20,10 +20,15 @@ function LayoutGrid(parent_model, options, position_above_model) {
 
 	// optinally start the models at a y position above `position_above_model` if that 
 	// model is defined
-	var shift_y = (typeof position_above_model != 'undefined' ) ? true : false
+	var shift_y = (typeof position_above_model !== 'undefined' ) ? true : false
 	if ( shift_y ) {
 		var other_model_extents = makerjs.measure.modelExtents(position_above_model)
 		ypos = other_model_extents.high[1] + grid_spacing_between_models
+	}
+
+	// handle case where parent_model doesnt have children, by making a fake parent to use in array below
+	if ( !parent_model.models ) {
+		throw new Error('Function requires model with child `models` property')
 	}
 
 
