@@ -11,7 +11,7 @@ function LayoutGrid(parent_model, options, position_above_model) {
 	var XSPACING = (typeof options.x_spacing == 'undefined' ? 0.1 : options.x_spacing)
 	var YSPACING = (typeof options.y_spacing == 'undefined' ? 0.1 : options.y_spacing)
 	var grid_spacing_between_models = (typeof options.grid_spacing_between_models == 'undefined' 
-		? 0.3 : options.grid_spacing_between_models)
+		? 3.22 : options.grid_spacing_between_models)
 
 
 	var xpos = 0
