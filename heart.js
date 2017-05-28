@@ -25,10 +25,29 @@ var makerjs 			= require('makerjs')
 // movements. Each movement is the amount specified in the array, for example `-3` would be moving
 // 3 units in the negative direction. The starting point of the heart is the leftmost edge at the
 // top of the vertical 3 side (see `STARTING_POINT`).
-var path = [1,1,1,1,3,-1,3,1,3,-1,1,-1,1,-3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,3]	
 
-var HEART_WIDTH = 13	// corresponds to the width of the model when built from `path` above
-var STARTING_POINT = [0,9]	// starting point so the heart is located properly in space
+/**
+ * Multiple styles of heart are setup here.
+ */
+var default_version = '13x7'
+var versions = {
+	'13x7' : {
+		path: [1,1,1,1,3,-1,3,1,3,-1,1,-1,1,-3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,3],
+		STARTING_POINT: [0,9],
+		HEART_WIDTH: 13
+	},
+	'7x6' : {
+		path: [1,1,2,-1,1,1,2,-1,1,-2,-1,-1,-1,-1,-1,-1,-1,1,-1,1,-1,1,-1,2],
+		STARTING_POINT: [0,5],
+		HEART_WIDTH: 7
+	},
+	'7x6-notop-dimple' : {
+		path: [1,1,5,-1,1,-2,-1,-1,-1,-1,-1,-1,-1,1,-1,1,-1,1,-1,2],
+		STARTING_POINT: [0,5],
+		HEART_WIDTH: 7
+	}
+}
+
 
 /**
  * Builds an array of points that define a model by generating points 
@@ -65,12 +84,17 @@ function PixelWalker(firstPoint, pixel_path) {
 /** 
  * Builds a pixel heart model and scale it to the specified input width.
  */
-function Heart(desired_width) {
+function Heart(desired_width, version) {
+
+	var params = versions[version]
+	if ( !params ) {
+		params = versions[default_version]
+	}
   
-	var points = PixelWalker(STARTING_POINT,path)
+	var points = PixelWalker(params.STARTING_POINT,params.path)
 	var pathModel = new makerjs.models.ConnectTheDots(true, points)
 	if ( typeof desired_width != 'undefined' ) {
-	  	var scale = desired_width/HEART_WIDTH
+	  	var scale = desired_width/params.HEART_WIDTH
 		makerjs.model.scale(pathModel, scale)
 	}
 	return pathModel
@@ -81,7 +105,7 @@ function Heart(desired_width) {
  * See http://microsoft.github.io/maker.js/playground
  */
 Heart.metaParameters = [
-    { title: "Width", type: "range", min: 1, max: 130, value: 13 }
+    { title: "Width", type: "range", min: 1, max: 130, value: 30 }
 ]
 
 module.exports = Heart

@@ -102,11 +102,11 @@ function notchModel(original_model, options) {
 	var points = []
 	var boxes = []
     var thickness = (typeof options.thickness != 'undefined') ? options.thickness : 0.1
-	var is_walls = (typeof options.is_walls != 'undefined') ? options.is_walls : false
 	var notch_width = options.notch_width
     var notch_height = thickness * 2	// double size because half will overhang the model
-	var return_notches_without_model = (typeof options.return_notches_without_model != 'undefined') ? 
-							options.return_notches_without_model : false
+	var return_notches_without_model = ((typeof options.return_notches_without_model == 'undefined') ? 
+							false : options.return_notches_without_model)
+
 	// default pattern is always "in"
 	var pattern = (typeof options.pattern != 'undefined') ? options.pattern : [-1]	
 	if (typeof notch_width == 'undefined') {

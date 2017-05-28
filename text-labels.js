@@ -2,8 +2,10 @@ var makerjs 			= require('makerjs')
 var opentype 			= require('opentype.js')
 
 
+var font_size = 2
+
 var font = opentype.loadSync('./fonts/StardosStencil-Regular.ttf')
-var font_size = 5
+
 var buildTextForModels = function(boxes) {
 
 	var root_object = boxes.models
