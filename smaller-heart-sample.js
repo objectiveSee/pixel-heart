@@ -58,6 +58,7 @@ var heart = Heart(inner_heart_width, '7x6')
 
 // Create model
 var outer_model = StrokeModel(heart_no_dimple, outer_stroke_around_heart)
+var heart_slightly_bigger = StrokeModel(heart, 2)
 
 
 // Notch model
@@ -94,10 +95,11 @@ LayoutGrid(notched_boxes_outer, gridLayoutOptions, notched_heart_top)
 // Assemble the final model that will be output
 var all_models_combined = {
 	models: {
-		notched_heart_outer: notched_heart_outer,
+		// notched_heart_outer: notched_heart_outer,
 		heart: heart,
-		notched_boxes_outer: notched_boxes_outer,
-		notched_heart_top: notched_heart_top,
+		// notched_boxes_outer: notched_boxes_outer,
+		// notched_heart_top: notched_heart_top,
+		heart_slightly_bigger: heart_slightly_bigger
 	}
 }
 
