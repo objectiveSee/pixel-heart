@@ -9,16 +9,21 @@ var StrokeModel 		= require('./stroke-model.js')
 var JoineryExport		= require('./JoineryExport.js')
 var FlattenModel 		= require('./flatten-model.js')
 var TextLabels 			= require('./text-labels.js')
+var MarioBricks 		= require('./mario-bricks.js')
 
 /** 
  * Properties of design
+ * 26mm ~== 1.02 inch
  * all distance units are in mm
  */
-var inner_heart_width = 299					// in mm (299mm == 11.7in)
-var wood_thickness = 3.22 					// in mm
 
-// 26mm ~== 1.02 inch
-var outer_stroke_around_heart = 26-3.22			// distance from inner wall to outer wall in mm
+
+var inner_heart_width = 299					// in mm (299mm == 11.7in)
+var wood_thickness = 2.82 					// in mm
+
+
+// distance from inner wall to outer wall in mm
+var outer_stroke_around_heart = 26*1.1	
 var grid_spacing_between_models = 5		// for laying out the final boxes and models
 var box_depth = 26 							// the height of the final product in mm
 var box_layout_spacing = 2
@@ -40,7 +45,7 @@ var box_notch_options = {
 }
 
 // Spacing options for positioning models
-var gridLayoutOptions = {
+var DEFAULT_GRID_SPACING_OPTIONS = {
 	x_spacing: box_layout_spacing,
 	y_spacing: box_layout_spacing,
 	max_width: wrap_boxes_after_width,
@@ -59,7 +64,11 @@ var gridLayoutOptions = {
 // Create the heart model & scale to desired size
 // Create outer expanded model & notch it
 var heart = Heart(inner_heart_width)
-var outer_model = StrokeModel(heart, outer_stroke_around_heart)
+
+var DIMPLE_OUTER_MODEL = false
+var outer_model_heart_type = DIMPLE_OUTER_MODEL ? '13x7-notop-dimple' : '13x7'
+
+var outer_model = StrokeModel(Heart(inner_heart_width, outer_model_heart_type), outer_stroke_around_heart)
 
 var notched_heart_outer = notcher.notchModel(outer_model, {
 	thickness: wood_thickness,
@@ -76,6 +85,10 @@ var notched_boxes_outer = notcher.notchModelsInParent(boxes_outer, {
 	notch_width: notch_width,
 	return_notches_without_model: false
 })
+
+// Create a blue line model for where the inside of the outer wall would be aligned
+var outer_model_inner_stroke = StrokeModel(outer_model, 0 - wood_thickness)
+
 
 
 // /**
@@ -103,18 +116,38 @@ var notched_boxes_inner = notcher.notchModelsInParent(boxes_inner, {
 
 
 // Align models
-LayoutGrid(notched_boxes_inner, gridLayoutOptions, notched_heart_outer)
-LayoutGrid(notched_boxes_outer, gridLayoutOptions, notched_boxes_inner)
+// TODO: re-enable boxes (wasn't working)
+// LayoutGrid(notched_boxes_outer, DEFAULT_GRID_SPACING_OPTIONS, notched_boxes_inner)
+
+var options = JSON.parse(JSON.stringify(DEFAULT_GRID_SPACING_OPTIONS))
+options.x_spacing = 18
+options.y_spacing = 8
+LayoutGrid(notched_boxes_outer, options, outer_model)
+LayoutGrid(notched_boxes_inner, DEFAULT_GRID_SPACING_OPTIONS, notched_boxes_outer)
 
 
 /**
  * Add text labels on the "blue" layer to some models.
  */
 var notched_boxes_inner_text = TextLabels.buildTextForModels(notched_boxes_inner)
-notched_boxes_inner_text.layer = 'blue'
-heart.layer = 'blue'
-inner_model.layer = 'blue'
-outer_model.layer = 'blue'
+
+var makeLayersBlue = function(layers) {
+	layers.forEach(function(l) { l.layer = 'blue' })
+}
+makeLayersBlue([
+	notched_boxes_inner_text,
+	heart,
+	inner_model,
+	outer_model,
+	outer_model_inner_stroke]
+)
+
+// var all_models_combined = {
+// 	models : {
+// 		bricks: addBricksToBoxes(notched_boxes_outer),
+// 		notched_boxes_outer: notched_boxes_outer
+// 	}
+// }
 
 // Assemble the final model that will be output
 var all_models_combined = {
@@ -134,6 +167,7 @@ var all_models_combined = {
 		//
 		notched_boxes_outer: notched_boxes_outer,
 		notched_boxes_inner: notched_boxes_inner,
+		bricks: MarioBricks(notched_boxes_outer),
 
 
 
@@ -141,7 +175,8 @@ var all_models_combined = {
 		// Misc
 		//
 		inner_model: inner_model,
-		heart: heart
+		heart: heart,
+		outer_model_inner_stroke: outer_model_inner_stroke
 
 	}
 }
@@ -176,7 +211,7 @@ var output = svg
 console.log('Saving...')
 fs.writeFile(filename, output, function(err) {
     if(err) {
-        return console.log(err)
+        return console.log('Error saving: '+err)
     }
     console.log('The file '+filename+' was saved!')
 })
