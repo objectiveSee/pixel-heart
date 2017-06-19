@@ -150,34 +150,50 @@ makeLayersBlue([
 // }
 
 // Assemble the final model that will be output
-var all_models_combined = {
-	models: {
-		// boxes_outer:boxes_outer,
-		// notched_heart_outer_reversed: notched_heart_outer_reversed
-		// text_models_outer_boxes: text_models_outer_boxes,
 
-		//
-		// Notched hearts
-		// 
-		notched_heart_outer: notched_heart_outer,
-		notched_heart_inner: notched_heart_inner,
+var all_models_combined
 
-		//
-		// Boxes
-		//
-		notched_boxes_outer: notched_boxes_outer,
-		notched_boxes_inner: notched_boxes_inner,
-		bricks: MarioBricks(notched_boxes_outer),
+if ( 1 ) {
+
+	all_models_combined = {
+		models: {
+
+			outer_model_inner_stroke: outer_model_inner_stroke,
+			outer_model
+		}
+	}
+
+} else {
+
+	all_models_combined = {
+		models: {
+			// boxes_outer:boxes_outer,
+			// notched_heart_outer_reversed: notched_heart_outer_reversed
+			// text_models_outer_boxes: text_models_outer_boxes,
+
+			//
+			// Notched hearts
+			// 
+			notched_heart_outer: notched_heart_outer,
+			notched_heart_inner: notched_heart_inner,
+
+			//
+			// Boxes
+			//
+			notched_boxes_outer: notched_boxes_outer,
+			notched_boxes_inner: notched_boxes_inner,
+			bricks: MarioBricks(notched_boxes_outer),
 
 
 
-		//
-		// Misc
-		//
-		inner_model: inner_model,
-		heart: heart,
-		outer_model_inner_stroke: outer_model_inner_stroke
+			//
+			// Misc
+			//
+			inner_model: inner_model,
+			heart: heart,
+			outer_model_inner_stroke: outer_model_inner_stroke
 
+		}
 	}
 }
 
